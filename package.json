@@ -1,0 +1,25 @@
+{
+  "name": "load-sif",
+  "version": "0.0.0",
+  "description": "A parser for Synfig animations",
+  "main": "lib/load-sif.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublish": "gulp"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/permutatrix/node-load-sif.git"
+  },
+  "author": "Permutator",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/permutatrix/node-load-sif/issues"
+  },
+  "homepage": "https://github.com/permutatrix/node-load-sif#readme",
+  "devDependencies": {
+    "del": "^2.0.2",
+    "gulp": "^3.9.0",
+    "gulp-babel": "^5.2.1"
+  }
+}
