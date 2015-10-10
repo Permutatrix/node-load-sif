@@ -27,5 +27,5 @@ build/Release
 node_modules
 
 # Files for building
-src
+# src is not excluded in case people want to use jsnext:main
 gulpfile.js
