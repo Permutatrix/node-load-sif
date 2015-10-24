@@ -12,7 +12,7 @@
     "type": "git",
     "url": "git+https://github.com/permutatrix/node-load-sif.git"
   },
-  "author": "Permutator",
+  "author": "Permutator <permutatorem@gmail.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/permutatrix/node-load-sif/issues"
@@ -22,5 +22,8 @@
     "del": "^2.0.2",
     "gulp": "^3.9.0",
     "gulp-babel": "^5.2.1"
+  },
+  "dependencies": {
+    "xml-pulley": "^0.1.1"
   }
 }

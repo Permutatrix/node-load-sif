@@ -9,6 +9,6 @@ gulp.task('clean', function(cb) {
 
 gulp.task('default', ['clean'], function() {
   return gulp.src('src/**/*.js')
-  .pipe(babel())
+  .pipe(babel({loose: 'all'}))
   .pipe(gulp.dest('lib'));
 });
