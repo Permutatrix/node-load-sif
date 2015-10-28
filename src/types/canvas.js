@@ -1,9 +1,9 @@
-import { parseTime as parseTime_ } from './time.js';
+import * as time from './time.js';
 
 export default function Canvas() {
   let canvas;
   
-  let parseTime = (stamp) => parseTime_(stamp, canvas.fps);
+  let parseTime = (stamp) => time.parse(stamp, canvas.fps);
   
   return canvas = {
     parseTime

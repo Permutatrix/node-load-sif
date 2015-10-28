@@ -1,12 +1,12 @@
 import { makePulley } from 'xml-pulley';
 
-import { versionIndex, versionSupported } from './version.js';
-import { guids } from './guid.js';
+import * as version from './version.js';
+import * as guid from './guid.js';
 
 import Color from './types/color.js';
 import Canvas from './types/canvas.js';
 import Vector from './types/vector.js';
-import { parseTime } from './types/time.js';
+import * as time from './types/time.js';
 
 
 export default function loadSif(file) {
@@ -22,12 +22,9 @@ export default function loadSif(file) {
 function parseCanvas(pulley, parent, inline) {
   let tag = pulley.checkName('canvas'), attrs = tag.attributes;
   
-  if(attrs['guid']) {
-    let retrieved = guids[attrs['guid']];
-    if(retrieved) {
-      pulley.skipTag();
-      return retrieved;
-    }
+  if(attrs['guid'] && guid.exists(attrs['guid'])) {
+    pulley.skipTag();
+    return guid.get(attrs['guid']);
   }
   
   let canvas;
@@ -43,7 +40,7 @@ function parseCanvas(pulley, parent, inline) {
   }
   
   if(attrs['guid']) {
-    guids[attrs['guid']] = canvas;
+    guid.set(attrs['guid'], canvas);
   }
   if(attrs['version']) {
     canvas.version = attrs['version'];
@@ -57,7 +54,7 @@ function parseCanvas(pulley, parent, inline) {
   }
   if(attrs['height']) {
     let height = parseInt(attrs['height']);
-    if(width < 1) {
+    if(height < 1) {
       throw Error("Canvas with width or height less than one is not allowed");
     }
     canvas.height = height;

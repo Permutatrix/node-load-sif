@@ -1,4 +1,4 @@
-export function parseTime(stamp, fps) {
+export function parse(stamp, fps) {
   fps = fps || 0;
   stamp = stamp.toLowerCase();
   

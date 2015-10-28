@@ -1,4 +1,4 @@
-export default function color(r, g, b, a) {
+export default function Color(r, g, b, a) {
   if(g === undefined)
     return { r: r, g: r, b: r, a: 1 };
   if(b === undefined)

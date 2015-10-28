@@ -13,13 +13,13 @@ export const CANVAS_VERSION_HISTORY = [
   '1.0'
 ];
 
-const CANVAS_VERSION_INDEX = versionIndex(CANVAS_VERSION);
+const CANVAS_VERSION_INDEX = index(CANVAS_VERSION);
 
-export function versionIndex(v) {
+export function index(v) {
   return CANVAS_VERSION_HISTORY.indexOf(v);
 }
 
-export function versionSupported(v) {
-  let ind = versionIndex(v);
+export function supported(v) {
+  let ind = index(v);
   return v >= 0 && v <= CANVAS_VERSION_INDEX;
 }
