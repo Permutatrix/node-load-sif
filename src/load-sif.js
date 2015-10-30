@@ -96,7 +96,72 @@ function parseCanvas(pulley, parent, inline) {
     canvas.focus = Vector.create(parseFloat(values[0]), parseFloat(values[1]));
   }
   
+  pulley.loopTag((pulley) => {
+    let tag = pulley.check('opentag');
+    switch(tag.name) {
+      case 'defs': {
+        if(inline) {
+          throw Error("Inline canvases can't have defs!");
+        }
+        parseCanvasDefs(pulley, canvas);
+        break;
+      }
+      case 'bones': {
+        console.warn("Bones are unsupported and probably will be forever.");
+        pulley.skipTag();
+        break;
+      }
+      case 'keyframe': {
+        if(inline) {
+          console.warn("Inline canvases can't have keyframes.");
+          pulley.skipTag();
+          break;
+        }
+        Canvas.addKeyframe(canvas, parseKeyframe(pulley));
+        break;
+      }
+      case 'meta': {
+        if(inline) {
+          console.warn("Inline canvases can't have metadata.");
+          pulley.skipTag();
+          break;
+        }
+        Canvas.setMetadata(canvas, parseMeta(pulley));
+        break;
+      }
+      case 'name': case 'desc': case 'author': {
+        pulley.expectName(tag.name);
+        canvas[tag.name] = pulley.nextText().text;
+        pulley.expectName(tag.name, 'closetag');
+        break;
+      }
+      case 'layer': {
+        Canvas.addLayer(canvas, parseLayer(pulley, canvas));
+        break;
+      }
+      default: {
+        throw Error(`Unexpected element in <canvas>: <${tag.name}>`);
+      }
+    }
+  }, 'canvas');
+  
   return canvas;
+}
+
+function parseCanvasDefs(pulley, canvas) {
+  throw Error("defs not implemented");
+}
+
+function parseKeyframe(pulley) {
+  throw Error("keyframe not implemented");
+}
+
+function parseMeta(pulley) {
+  throw Error("meta not implemented");
+}
+
+function parseLayer(pulley, canvas) {
+  throw Error("layer not implemented");
 }
 
 
