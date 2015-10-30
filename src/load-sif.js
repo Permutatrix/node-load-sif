@@ -1,12 +1,11 @@
 import { makePulley } from 'xml-pulley';
 
-import * as version from './version.js';
-import * as guid from './guid.js';
+import * as Version from './version.js';
+import * as Guid from './guid.js';
 
-import Color from './types/color.js';
-import Canvas from './types/canvas.js';
-import Vector from './types/vector.js';
-import * as time from './types/time.js';
+import * as Color from './types/color.js';
+import * as Canvas from './types/canvas.js';
+import * as Vector from './types/vector.js';
 
 
 export default function loadSif(file) {
@@ -29,14 +28,10 @@ function parseCanvas(pulley, parent, inline) {
   
   let canvas;
   
-  if(parent && (inline || attrs['id'])) {
-    if(inline) {
-      canvas = parent.InlineCanvas();
-    } else {
-      canvas = parent.childCanvas(attrs['id']);
-    }
-  } else {
-    canvas = Canvas();
+  if(inline || !parent) {
+    canvas = Canvas.create();
+  } else if(parent) {
+    canvas = Canvas.childCanvas(canvas, attrs['id']);
   }
   
   if(attrs['guid']) {
@@ -69,10 +64,10 @@ function parseCanvas(pulley, parent, inline) {
     canvas.fps = parseFloat(attrs['fps']);
   }
   if(attrs['begin-time'] || attrs['start-time']) {
-    canvas.timeStart = canvas.parseTime(attrs['begin-time'] || attrs['start-time']);
+    canvas.timeStart = parseTime(attrs['begin-time'] || attrs['start-time'], canvas.fps);
   }
   if(attrs['end-time']) {
-    canvas.timeEnd = canvas.parseTime(attrs['end-time']);
+    canvas.timeEnd = parseTime(attrs['end-time'], canvas.fps);
   }
   if(attrs['antialias']) {
     canvas.antialias = parseInt(attrs['antialias']);
@@ -82,24 +77,93 @@ function parseCanvas(pulley, parent, inline) {
     if(values.length !== 4) {
       throw Error(`view-box has 4 parameters; ${values.length} given`);
     }
-    canvas.tl = Vector(parseFloat(values[0]), parseFloat(values[1]));
-    canvas.br = Vector(parseFloat(values[2]), parseFloat(values[3]));
+    canvas.tl = Vector.create(parseFloat(values[0]), parseFloat(values[1]));
+    canvas.br = Vector.create(parseFloat(values[2]), parseFloat(values[3]));
   }
   if(attrs['bgcolor']) {
     let values = attrs['bgcolor'].split(' ');
     if(values.length !== 4) {
       throw Error(`bgcolor has 4 parameters; ${values.length} given`);
     }
-    canvas.bgcolor = Color(parseFloat(values[0]), parseFloat(values[1]),
-                           parseFloat(values[2]), parseFloat(values[3]));
+    canvas.bgcolor = Color.create(parseFloat(values[0]), parseFloat(values[1]),
+                                  parseFloat(values[2]), parseFloat(values[3]));
   }
   if(attrs['focus']) {
     let values = attrs['focus'].split(' ');
     if(values.length !== 2) {
       throw Error(`focus has 2 parameters; ${values.length} given`);
     }
-    canvas.focus = Vector(parseFloat(values[0]), parseFloat(values[1]));
+    canvas.focus = Vector.create(parseFloat(values[0]), parseFloat(values[1]));
   }
   
   return canvas;
+}
+
+
+function parseTime(stamp, fps) {
+  fps = fps || 0;
+  stamp = stamp.toLowerCase();
+  
+  if(stamp === 'sot' || stamp === 'bot')
+    return -32767.0*512.0;
+  if(stamp === 'eot')
+    return 32767.0*512.0;
+  
+  let value = 0;
+  for(let pos = 0, len = stamp.length; pos < len; ++pos) {
+    let match = /-?\d*\.?\d*/.exec(stamp.substr(pos));
+    let amount = 0;
+    if(match) {
+      amount = +match[0] || 0;
+      pos += match[0].length;
+    }
+    if(pos >= stamp.length || !match) {
+      if(amount !== 0) {
+        if(fps) {
+          console.warn(`timecode "${stamp}": no unit provided; assuming frames`);
+          value += amount / fps;
+        } else {
+          console.warn(`timecode "${stamp}": no unit provided, no FPS given; assuming seconds`);
+          value += amount;
+        }
+      }
+      return value;
+    }
+    let code = stamp.charAt(pos);
+    if(code === 'h') {
+      value += amount * 3600;
+    } else if(code === 'm') {
+      value += amount * 60;
+    } else if(code === 's') {
+      value += amount;
+    } else if(code === 'f') {
+      if(fps)
+        value += amount / fps;
+      else
+        console.warn(`timecode "${stamp}": individual frames referenced, but FPS is unknown`);
+    } else if(code == ':') {
+      let parts = stamp.split(':');
+      if(parts.length >= 3) {
+        let dot = parts[2].indexOf('.');
+        if(dot >= 0) {
+          parts.push(parts[2].substr(dot+1));
+          parts[2] = parts[2].substr(0,dot);
+        }
+        value = (+parts[0] || 0)*3600 + (+parts[1] || 0)*60 + (+parts[2] || 0);
+        if(parts.length >= 4) {
+          if(fps)
+            value += (+parts[3] || 0) / fps;
+          else
+            console.warn(`timecode "${stamp}": individual frames referenced, but FPS is unknown`);
+        }
+        return value;
+      } else {
+        console.warn(`timecode "${stamp}": bad time format`);
+      }
+    } else {
+      console.warn(`timecode "${stamp}": unexpected unit code "${code}"; assuming seconds`);
+      value += amount;
+    }
+  }
+  return value;
 }
