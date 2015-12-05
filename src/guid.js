@@ -1,4 +1,4 @@
-let guids = {};
+const guids = {};
 
 export function set(guid, value) {
   guids[guid] = value;

@@ -10,7 +10,7 @@ import * as Keyframe from './types/keyframe.js';
 
 
 export default function loadSif(file) {
-  let pulley = makePulley(file, {
+  const pulley = makePulley(file, {
     trim: true,
     normalize: true,
     skipWhitespaceOnly: true
@@ -20,7 +20,7 @@ export default function loadSif(file) {
 
 
 function parseCanvas(pulley, parent, inline) {
-  let tag = pulley.checkName('canvas'), attrs = tag.attributes;
+  const tag = pulley.checkName('canvas'), attrs = tag.attributes;
   
   if(attrs['guid'] && guid.exists(attrs['guid'])) {
     pulley.skipTag();
@@ -42,14 +42,14 @@ function parseCanvas(pulley, parent, inline) {
     canvas.version = attrs['version'];
   }
   if(attrs['width']) {
-    let width = parseInt(attrs['width']);
+    const width = parseInt(attrs['width']);
     if(width < 1) {
       throw Error("Canvas with width or height less than one is not allowed");
     }
     canvas.width = width;
   }
   if(attrs['height']) {
-    let height = parseInt(attrs['height']);
+    const height = parseInt(attrs['height']);
     if(height < 1) {
       throw Error("Canvas with width or height less than one is not allowed");
     }
@@ -74,7 +74,7 @@ function parseCanvas(pulley, parent, inline) {
     canvas.antialias = parseInt(attrs['antialias']);
   }
   if(attrs['view-box']) {
-    let values = attrs['view-box'].split(' ');
+    const values = attrs['view-box'].split(' ');
     if(values.length !== 4) {
       throw Error(`view-box has 4 parameters; ${values.length} given`);
     }
@@ -82,7 +82,7 @@ function parseCanvas(pulley, parent, inline) {
     canvas.br = Vector.create(parseFloat(values[2]), parseFloat(values[3]));
   }
   if(attrs['bgcolor']) {
-    let values = attrs['bgcolor'].split(' ');
+    const values = attrs['bgcolor'].split(' ');
     if(values.length !== 4) {
       throw Error(`bgcolor has 4 parameters; ${values.length} given`);
     }
@@ -90,7 +90,7 @@ function parseCanvas(pulley, parent, inline) {
                                   parseFloat(values[2]), parseFloat(values[3]));
   }
   if(attrs['focus']) {
-    let values = attrs['focus'].split(' ');
+    const values = attrs['focus'].split(' ');
     if(values.length !== 2) {
       throw Error(`focus has 2 parameters; ${values.length} given`);
     }
@@ -98,7 +98,7 @@ function parseCanvas(pulley, parent, inline) {
   }
   
   pulley.loopTag((pulley) => {
-    let tag = pulley.check('opentag');
+    const tag = pulley.check('opentag');
     switch(tag.name) {
       case 'defs': {
         if(inline) {
@@ -156,16 +156,16 @@ function parseCanvasDefs(pulley, canvas) {
 function parseKeyframe(pulley, canvas) {
   canvas = canvas || {};
   
-  let tag = pulley.expectName('keyframe'), attrs = tag.attributes;
+  const tag = pulley.expectName('keyframe'), attrs = tag.attributes;
   
-  let time = attrs['time'], active = attrs['active'];
+  const time = attrs['time'], active = attrs['active'];
   if(!time) {
     throw Error("<keyframe> is missing \"time\" attribute!");
   }
   
-  let out = Keyframe.create(parseTime(time, canvas.fps),
-                            active !== 'false' && active !== '0',
-                            pulley.nextText().text);
+  const out = Keyframe.create(parseTime(time, canvas.fps),
+                              active !== 'false' && active !== '0',
+                              pulley.nextText().text);
   pulley.expectName('keyframe', 'closetag');
   
   return out;
@@ -191,7 +191,7 @@ function parseTime(stamp, fps) {
   
   let value = 0;
   for(let pos = 0, len = stamp.length; pos < len; ++pos) {
-    let match = /-?\d*\.?\d*/.exec(stamp.substr(pos));
+    const match = /-?\d*\.?\d*/.exec(stamp.substr(pos));
     let amount = 0;
     if(match) {
       amount = +match[0] || 0;
@@ -209,7 +209,7 @@ function parseTime(stamp, fps) {
       }
       return value;
     }
-    let code = stamp.charAt(pos);
+    const code = stamp.charAt(pos);
     if(code === 'h') {
       value += amount * 3600;
     } else if(code === 'm') {
@@ -222,9 +222,9 @@ function parseTime(stamp, fps) {
       else
         console.warn(`timecode "${stamp}": individual frames referenced, but FPS is unknown`);
     } else if(code == ':') {
-      let parts = stamp.split(':');
+      const parts = stamp.split(':');
       if(parts.length >= 3) {
-        let dot = parts[2].indexOf('.');
+        const dot = parts[2].indexOf('.');
         if(dot >= 0) {
           parts.push(parts[2].substr(dot+1));
           parts[2] = parts[2].substr(0,dot);

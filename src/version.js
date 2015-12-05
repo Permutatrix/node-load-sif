@@ -20,6 +20,6 @@ export function index(v) {
 }
 
 export function supported(v) {
-  let ind = index(v);
-  return v >= 0 && v <= CANVAS_VERSION_INDEX;
+  const ind = index(v);
+  return ind >= 0 && ind <= CANVAS_VERSION_INDEX;
 }
