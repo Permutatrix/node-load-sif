@@ -10,14 +10,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/permutatrix/node-load-sif.git"
+    "url": "git+https://github.com/Permutatrix/node-load-sif.git"
   },
   "author": "Permutator <permutatorem@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/permutatrix/node-load-sif/issues"
+    "url": "https://github.com/Permutatrix/node-load-sif/issues"
   },
-  "homepage": "https://github.com/permutatrix/node-load-sif#readme",
+  "homepage": "https://github.com/Permutatrix/node-load-sif#readme",
   "devDependencies": {
     "del": "^2.0.2",
     "gulp": "^3.9.0",
