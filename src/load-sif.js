@@ -6,6 +6,7 @@ import * as Guid from './guid.js';
 import * as Color from './types/color.js';
 import * as Canvas from './types/canvas.js';
 import * as Vector from './types/vector.js';
+import * as Keyframe from './types/keyframe.js';
 
 
 export default function loadSif(file) {
@@ -117,7 +118,7 @@ function parseCanvas(pulley, parent, inline) {
           pulley.skipTag();
           break;
         }
-        Canvas.addKeyframe(canvas, parseKeyframe(pulley));
+        Canvas.addKeyframe(canvas, parseKeyframe(pulley, canvas));
         break;
       }
       case 'meta': {
@@ -152,8 +153,22 @@ function parseCanvasDefs(pulley, canvas) {
   throw Error("defs not implemented");
 }
 
-function parseKeyframe(pulley) {
-  throw Error("keyframe not implemented");
+function parseKeyframe(pulley, canvas) {
+  canvas = canvas || {};
+  
+  let tag = pulley.expectName('keyframe'), attrs = tag.attributes;
+  
+  let time = attrs['time'], active = attrs['active'];
+  if(!time) {
+    throw Error("<keyframe> is missing \"time\" attribute!");
+  }
+  
+  let out = Keyframe.create(parseTime(time, canvas.fps),
+                            active !== 'false' && active !== '0',
+                            pulley.nextText().text);
+  pulley.expectName('keyframe', 'closetag');
+  
+  return out;
 }
 
 function parseMeta(pulley) {
