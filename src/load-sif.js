@@ -7,6 +7,9 @@ import * as Color from './types/color.js';
 import * as Canvas from './types/canvas.js';
 import * as Vector from './types/vector.js';
 import * as Keyframe from './types/keyframe.js';
+import * as ValueBase from './types/value_base.js';
+
+import * as VNConst from './value_nodes/const.js';
 
 
 function checkAttribute(tag, name) {
@@ -29,21 +32,23 @@ export default function loadSif(file) {
 function parseCanvas(pulley, parent, inline) {
   const tag = pulley.checkName('canvas'), attrs = tag.attributes;
   
-  if(attrs['guid'] && guid.exists(attrs['guid'])) {
+  if(attrs['guid'] && Guid.exists(attrs['guid'])) {
     pulley.skipTag();
-    return guid.get(attrs['guid']);
+    return Guid.get(attrs['guid']);
   }
   
   let canvas;
   
   if(inline || !parent) {
     canvas = Canvas.create();
+    canvas.parent = parent;
   } else if(parent) {
     canvas = Canvas.childCanvas(canvas, attrs['id']);
   }
   
-  if(attrs['guid']) {
-    guid.set(attrs['guid'], canvas);
+  Guid.set(canvas.guid = attrs['guid'] || Guid.generate(), canvas);
+  if(!inline && attrs['id']) {
+    canvas.id = attrs['id'];
   }
   if(attrs['version']) {
     canvas.version = attrs['version'];
@@ -157,7 +162,62 @@ function parseCanvas(pulley, parent, inline) {
 }
 
 function parseCanvasDefs(pulley, canvas) {
-  throw Error("defs not implemented");
+  pulley.loopTag((pulley) => {
+    const tag = pulley.check('opentag');
+    if(tag.name === 'canvas') {
+      parseCanvas(pulley, canvas);
+    } else {
+      parseValueNode(pulley, canvas);
+    }
+  }, 'defs');
+}
+
+function parseValueNode(pulley, canvas) {
+  const tag = pulley.check('opentag'), attrs = tag.attributes;
+  
+  let guid = attrs['guid'];
+  if(guid) {
+    guid = Guid.xor(guid, Canvas.getRoot(canvas).guid);
+    if(Guid.exists(guid)) {
+      pulley.skipTag();
+      return Guid.get(guid);
+    }
+  } else {
+    guid = Guid.generate();
+  }
+  
+  let node, value;
+  if(tag.name !== 'canvas' && (value = parseValue(pulley, canvas))) {
+    node = VNConst.create(value);
+  } else {
+    const parser = {
+      'hermite': parseAnimated,
+      'animated': parseAnimated,
+      'static_list': parseStaticList,
+      'dynamic_list': parseDynamicList,
+      'bline': parseDynamicList,
+      'wplist': parseDynamicList,
+      'dilist': parseDynamicList,
+      'weighted_average': parseDynamicList
+    }[tag.name];
+    if(parser) {
+      node = parser(pulley, canvas);
+    } else if(node = parseLinkableValueNode(pulley, canvas)) {
+      
+    } else if(tag.name === 'canvas') {
+      node = VNConst.create(ValueBase.create('canvas', parseCanvas(pulley, canvas, true)));
+    } else {
+      throw Error(`Expected value node; got <${tag.name}>!`);
+    }
+  }
+  
+  if(attrs['id']) {
+    Canvas.addValueNode(canvas, node, attrs['id']);
+  }
+  
+  Guid.set(guid, node);
+  
+  return node;
 }
 
 function parseKeyframe(pulley, canvas) {

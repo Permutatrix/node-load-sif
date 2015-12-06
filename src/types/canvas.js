@@ -14,3 +14,10 @@ export const create = function Canvas() {
 export function addKeyframe(canvas, keyframe) {
   insertSorted(canvas.keyframes, keyframe, Keyframe.comesAfter);
 }
+
+export function getRoot(canvas) {
+  while(canvas.parent) {
+    canvas = canvas.parent;
+  }
+  return canvas;
+}
