@@ -220,6 +220,113 @@ function parseValueNode(pulley, canvas) {
   return node;
 }
 
+function parseValue(pulley, canvas) {
+  const tag = pulley.check('opentag'), attrs = tag.attributes;
+  
+  const out = ValueBase.create();
+  switch(tag.name) {
+    case 'real': {
+      
+      break;
+    }
+    case 'time': {
+      
+      break;
+    }
+    case 'integer': {
+      
+      break;
+    }
+    case 'string': {
+      
+      break;
+    }
+    case 'vector': {
+      
+      break;
+    }
+    case 'color': {
+      
+      break;
+    }
+    case 'segment': {
+      
+      break;
+    }
+    case 'gradient': {
+      
+      break;
+    }
+    case 'bool': {
+      
+      break;
+    }
+    case 'angle': case 'degrees': case 'radians': case 'rotations': {
+      
+      break;
+    }
+    case 'transformation': {
+      
+      break;
+    }
+    case 'list': {
+      
+      return;
+    }
+    case 'bline_point': {
+      
+      return;
+    }
+    case 'guid': {
+      
+      return;
+    }
+    case 'width_point': {
+      
+      return;
+    }
+    case 'dash_item': {
+      
+      return;
+    }
+    case 'canvas': {
+      
+      return;
+    }
+    default: {
+      
+      break;
+    }
+  }
+  
+  out.static = readStatic(tag);
+  out.interpolation = readInterpolation(tag);
+  return out;
+}
+
+function readStatic(tag) {
+  const value = tag.attributes['static'];
+  switch(value) {
+    case '0': case 'false': case undefined: return false;
+    case '1': case 'true': return true;
+  }
+  throw Error(`Invalid value for static: "${value}"!`);
+}
+
+function readInterpolation(tag) {
+  const value = tag.attributes['interpolation'];
+  switch(value) {
+    case 'halt': return Interpolation.HALT;
+    case 'constant': return Interpolation.CONSTANT;
+    case 'linear': return Interpolation.LINEAR;
+    case 'manual': return Interpolation.MANUAL;
+    case 'auto': return Interpolation.TCB;
+    case 'clamped': return Interpolation.CLAMPED;
+    case undefined: return Interpolation.UNDEFINED;
+  }
+  throw Error(`Invalid value for interpolation: "${value}"!`);
+}
+
 function parseKeyframe(pulley, canvas) {
   canvas = canvas || {};
   
