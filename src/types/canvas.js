@@ -5,7 +5,8 @@ import * as Keyframe from './keyframe.js';
 
 export const create = function Canvas() {
   return {
-    keyframes: []
+    keyframes: [],
+    metadata: {}
   };
 };
 

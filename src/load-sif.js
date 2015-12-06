@@ -9,6 +9,13 @@ import * as Vector from './types/vector.js';
 import * as Keyframe from './types/keyframe.js';
 
 
+function checkAttribute(tag, name) {
+  if(tag.attributes[name] === undefined) {
+    throw Error(`<${tag.name}> is missing attribute "${name}"!`);
+  }
+}
+
+
 export default function loadSif(file) {
   const pulley = makePulley(file, {
     trim: true,
@@ -127,7 +134,7 @@ function parseCanvas(pulley, parent, inline) {
           pulley.skipTag();
           break;
         }
-        Canvas.setMetadata(canvas, parseMeta(pulley));
+        parseMetaInto(pulley, canvas);
         break;
       }
       case 'name': case 'desc': case 'author': {
@@ -158,10 +165,8 @@ function parseKeyframe(pulley, canvas) {
   
   const tag = pulley.expectName('keyframe'), attrs = tag.attributes;
   
+  checkAttribute(tag, 'time');
   const time = attrs['time'], active = attrs['active'];
-  if(!time) {
-    throw Error("<keyframe> is missing \"time\" attribute!");
-  }
   
   const out = Keyframe.create(parseTime(time, canvas.fps),
                               active !== 'false' && active !== '0',
@@ -171,8 +176,27 @@ function parseKeyframe(pulley, canvas) {
   return out;
 }
 
-function parseMeta(pulley) {
-  throw Error("meta not implemented");
+function parseMetaInto(pulley, canvas) {
+  const tag = pulley.expectName('meta'), attrs = tag.attributes;
+  
+  checkAttribute(tag, 'name');
+  checkAttribute(tag, 'content');
+  const name = attrs['name'];
+  let content = attrs['content'];
+  
+  if([
+       'background_first_color',
+       'background_second_color',
+       'background_size',
+       'grid_color',
+       'grid_size',
+       'jack_offset'
+     ].indexOf(name) !== -1) {
+    content = content.replace(/,/g, '.');
+  }
+  canvas.metadata[name] = content;
+  
+  pulley.expectName('meta', 'closetag');
 }
 
 function parseLayer(pulley, canvas) {
