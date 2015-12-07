@@ -2,10 +2,14 @@ import { makePulley } from 'xml-pulley';
 
 import * as Version from './version.js';
 import * as Guid from './guid.js';
+import * as Interpolation from './interpolation.js';
 
 import * as Color from './types/color.js';
 import * as Canvas from './types/canvas.js';
 import * as Vector from './types/vector.js';
+import * as Segment from './types/segment.js';
+import * as Gradient from './types/gradient.js';
+import * as Transformation from './types/transformation.js';
 import * as Keyframe from './types/keyframe.js';
 import * as ValueBase from './types/value_base.js';
 
@@ -223,50 +227,136 @@ function parseValueNode(pulley, canvas) {
 function parseValue(pulley, canvas) {
   const tag = pulley.check('opentag'), attrs = tag.attributes;
   
-  const out = ValueBase.create();
+  const out = ValueBase.create(tag.name);
   switch(tag.name) {
     case 'real': {
-      
+      out.data = parseFloat(parseValueAttribute(pulley));
       break;
     }
     case 'time': {
-      
+      out.data = parseTime(parseValueAttribute(pulley));
       break;
     }
     case 'integer': {
-      
+      out.data = parseInt(parseValueAttribute(pulley));
       break;
     }
     case 'string': {
-      
+      pulley.expectName(tag.name, 'opentag');
+      out.data = pulley.nextText().rawText;
+      pulley.expectName(tag.name, 'closetag');
       break;
     }
     case 'vector': {
-      
+      const vec = out.data = Vector.create();
+      pulley.loopTag((pulley) => {
+        const name = pulley.expect('opentag').name, value = parseFloat(pulley.nextText().text);
+        if(name === 'x') {
+          vec.x = value;
+        } else if(name === 'y') {
+          vec.y = value;
+        } else {
+          throw Error(`Unexpected element in <vector>: <${name}>!`);
+        }
+        pulley.expectName(name, 'closetag');
+      }, 'vector');
       break;
     }
     case 'color': {
-      
+      const col = out.data = Color.create(0);
+      pulley.loopTag((pulley) => {
+        const name = pulley.expect('opentag').name, value = parseFloat(pulley.nextText().text);
+        if(name === 'r') {
+          col.r = value;
+        } else if(name === 'g') {
+          col.g = value;
+        } else if(name === 'b') {
+          col.b = value;
+        } else if(name === 'a') {
+          col.a = value;
+        } else {
+          throw Error(`Unexpected element in <color>: <${name}>!`);
+        }
+        pulley.expectName(name, 'closetag');
+      }, 'color');
       break;
     }
     case 'segment': {
-      
+      const seg = out.data = Segment.create();
+      pulley.loopTag((pulley) => {
+        const name = pulley.expect('opentag').name;
+        let value = parseValue(pulley, canvas);
+        if(!value || value.type !== 'vector') {
+          throw Error(`Expected <vector> in <segment>!`);
+        }
+        value = value.data;
+        if(name === 'p1') {
+          col.p1 = value;
+        } else if(name === 't1') {
+          col.t1 = value;
+        } else if(name === 'p2') {
+          col.p2 = value;
+        } else if(name === 't2') {
+          col.t2 = value;
+        } else {
+          throw Error(`Unexpected element in <segment>: <${name}>!`);
+        }
+        pulley.expectName(name, 'closetag');
+      }, 'segment');
       break;
     }
     case 'gradient': {
-      
+      const grad = out.data = Gradient.create();
+      pulley.loopTag((pulley) => {
+        const tag = pulley.checkName('color'), attrs = tag.attributes, value = parseValue(pulley, canvas);
+        if(!attrs['pos']) {
+          throw Error("<gradient>'s <color> is missing attribute \"pos\"!");
+        }
+        Gradient.addStop(grad, parseFloat(attrs['pos']), value.data);
+      }, 'gradient');
       break;
     }
     case 'bool': {
-      
+      const value = parseValueAttribute(pulley);
+      if(value === 'true' || value === '1') {
+        out.data = true;
+      } else if(value === 'false' || value === '0') {
+        out.data = false;
+      } else {
+        throw Error(`Bad value "${value}" in <bool>!`);
+      }
       break;
     }
     case 'angle': case 'degrees': case 'radians': case 'rotations': {
-      
+      // Synfig parses all of these as degrees for some reason.
+      out.data = parseFloat(parseValueAttribute(pulley)) * Math.PI / 180;
       break;
     }
     case 'transformation': {
-      
+      const trans = out.data = Transformation.create();
+      pulley.loopTag((pulley) => {
+        const name = pulley.expect('opentag').name, value = parseValue(pulley, canvas);
+        let expectedType;
+        if(name === 'offset') {
+          trans.offset = value.data;
+          expectedType = 'vector';
+        } else if(name === 'angle') {
+          trans.angle = value.data;
+          expectedType = 'angle';
+        } else if(name === 'skew_angle') {
+          trans.skew = value.data;
+          expectedType = 'angle';
+        } else if(name === 'scale') {
+          trans.scale = value.data;
+          expectedType = 'vector';
+        } else {
+          throw Error(`Unexpected element in <transformation>: <${name}>!`);
+        }
+        if(value.type !== expectedType) {
+          throw Error(`Expected <transformation>'s <${name}> to be ${expectedType}; got ${value.type}!`);
+        }
+        pulley.expectName(name, 'closetag');
+      }, 'transformation');
       break;
     }
     case 'list': {
@@ -302,6 +392,15 @@ function parseValue(pulley, canvas) {
   out.static = readStatic(tag);
   out.interpolation = readInterpolation(tag);
   return out;
+}
+
+function parseValueAttribute(pulley) {
+  const tag = pulley.expect('opentag'), value = tag.attributes['value'];
+  pulley.expectName(tag.name, 'closetag');
+  if(!value) {
+    throw Error(`<${tag.name}> is missing attribute "value"!`);
+  }
+  return value;
 }
 
 function readStatic(tag) {
