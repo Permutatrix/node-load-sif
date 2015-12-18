@@ -12,6 +12,7 @@ import * as Gradient from './types/gradient.js';
 import * as Transformation from './types/transformation.js';
 import * as BLinePoint from './types/bline_point.js';
 import * as WidthPoint from './types/width_point.js';
+import * as DashItem from './types/dash_item.js';
 import * as Keyframe from './types/keyframe.js';
 import * as ValueBase from './types/value_base.js';
 
@@ -447,8 +448,31 @@ function parseValue(pulley, canvas) {
       return out;
     }
     case 'dash_item': {
-      
-      return;
+      const di = out.data = DashItem.create();
+      pulley.loopTag((pulley) => {
+        const name = pulley.expect('opentag').name, value = parseValue(pulley, canvas);
+        let expectedType;
+        if(name === 'offset') {
+          di.offset = value.data;
+          expectedType = 'real';
+        } else if(name === 'length') {
+          di.length = value.data;
+          expectedType = 'real';
+        } else if(name === 'side_before') {
+          di.before = value.data;
+          expectedType = 'integer';
+        } else if(name === 'side_after') {
+          di.after = value.data;
+          expectedType = 'integer';
+        } else {
+          throw Error(`Unexpected element in <dash_item>: <${name}>!`);
+        }
+        if(value.type !== expectedType) {
+          throw Error(`Expected <dash_item>'s <${name}> to be ${expectedType}; got ${value.type}!`);
+        }
+        pulley.expectName(name, 'closetag');
+      }, 'dash_item');
+      return out;
     }
     case 'canvas': {
       
