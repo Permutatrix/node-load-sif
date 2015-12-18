@@ -2,8 +2,8 @@
   "name": "load-sif",
   "version": "0.0.0",
   "description": "A parser for Synfig animations",
-  "main": "lib/load-sif.js",
-  "jsnext:main": "src/load-sif.js",
+  "main": "lib/load_sif.js",
+  "jsnext:main": "src/load_sif.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepublish": "gulp"
