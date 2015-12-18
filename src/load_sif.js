@@ -27,8 +27,8 @@ function checkAttribute(tag, name) {
 }
 
 
-export default function loadSif(file) {
-  const pulley = makePulley(file, {
+export function loadSif(xml) {
+  const pulley = makePulley(xml, {
     trim: true,
     normalize: true,
     skipWhitespaceOnly: true

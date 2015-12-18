@@ -14,6 +14,6 @@ gulp.task('default', ['clean'], function() {
   return rollup({ entry: './src/load_sif.js' })
   .pipe(source('load_sif.js', './src'))
   .pipe(buffer())
-  .pipe(babel({ presets: ['es2015-loose'], plugins: ['add-module-exports'] }))
+  .pipe(babel({ presets: ['es2015-loose'] }))
   .pipe(gulp.dest('.'));
 });
