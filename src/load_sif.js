@@ -13,6 +13,7 @@ import * as Transformation from './types/transformation.js';
 import * as BLinePoint from './types/bline_point.js';
 import * as WidthPoint from './types/width_point.js';
 import * as DashItem from './types/dash_item.js';
+import * as Weighted from './types/weighted.js';
 import * as Keyframe from './types/keyframe.js';
 import * as ValueBase from './types/value_base.js';
 
@@ -339,6 +340,9 @@ function parseValue(pulley, canvas) {
       const trans = out.data = Transformation.create();
       pulley.loopTag((pulley) => {
         const name = pulley.expect('opentag').name, value = parseValue(pulley, canvas);
+        if(!value) {
+          throw Error(`<transformation>'s <${name}> has an invalid value!`);
+        }
         let expectedType;
         if(name === 'offset') {
           trans.offset = value.data;
@@ -379,6 +383,9 @@ function parseValue(pulley, canvas) {
       bp.splita = bp.splitr = false;
       pulley.loopTag((pulley) => {
         const name = pulley.expect('opentag').name, value = parseValue(pulley, canvas);
+        if(!value) {
+          throw Error(`<bline_point>'s <${name}> has an invalid value!`);
+        }
         let expectedType;
         if(name === 'v' || name === 'p1') {
           bp.vertex = value.data;
@@ -418,6 +425,9 @@ function parseValue(pulley, canvas) {
       const wp = out.data = WidthPoint.create();
       pulley.loopTag((pulley) => {
         const name = pulley.expect('opentag').name, value = parseValue(pulley, canvas);
+        if(!value) {
+          throw Error(`<width_point>'s <${name}> has an invalid value!`);
+        }
         let expectedType;
         if(name === 'position') {
           wp.position = value.data;
@@ -451,6 +461,9 @@ function parseValue(pulley, canvas) {
       const di = out.data = DashItem.create();
       pulley.loopTag((pulley) => {
         const name = pulley.expect('opentag').name, value = parseValue(pulley, canvas);
+        if(!value) {
+          throw Error(`<dash_item>'s <${name}> has an invalid value!`);
+        }
         let expectedType;
         if(name === 'offset') {
           di.offset = value.data;
@@ -480,8 +493,33 @@ function parseValue(pulley, canvas) {
       return out;
     }
     default: {
-      
-      break;
+      if(tag.name.indexOf('weighted_') === 0) {
+        let weight = 0, value;
+        pulley.loopTag((pulley) => {
+          const name = pulley.expect('opentag').name, value = parseValue(pulley, canvas);
+          if(!value) {
+            throw Error(`<${tag.name}>'s <${name}> has an invalid value!`);
+          }
+          let expectedType;
+          if(name === 'weight') {
+            weight = value.data;
+            expectedType = 'real';
+          } else if(name === 'value') {
+            weight = value.data;
+            expectedType = tag.name.substr('weighted_'.length);
+          } else {
+            throw Error(`Unexpected element in <${tag.name}>: <${name}>!`);
+          }
+          if(value.type !== expectedType) {
+            throw Error(`Expected <${tag.name}>'s <${name}> to be ${expectedType}; got ${value.type}!`);
+          }
+          pulley.expectName(name, 'closetag');
+        });
+        out.data = Weighted.create(weight, value);
+        break;
+      } else {
+        return;
+      }
     }
   }
   
