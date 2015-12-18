@@ -106,8 +106,8 @@ function parseCanvas(pulley, parent, inline) {
     if(values.length !== 4) {
       throw Error(`bgcolor has 4 parameters; ${values.length} given`);
     }
-    canvas.bgcolor = Color.rgba(parseFloat(values[0]), parseFloat(values[1]),
-                                  parseFloat(values[2]), parseFloat(values[3]));
+    canvas.bgcolor = Color.rgb(parseFloat(values[0]), parseFloat(values[1]),
+                               parseFloat(values[2]), parseFloat(values[3]));
   }
   if(attrs['focus']) {
     const values = attrs['focus'].split(' ');
