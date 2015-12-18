@@ -360,8 +360,16 @@ function parseValue(pulley, canvas) {
       break;
     }
     case 'list': {
-      
-      return;
+      const list = out.data = [];
+      pulley.loopTag((pulley) => {
+        const name = pulley.check('opentag').name;
+        const v = parseValue(pulley, canvas);
+        if(!v) {
+          throw Error(`Expected list item to be a value; got <${name}>!`);
+        }
+        list.push(v);
+      });
+      return out;
     }
     case 'bline_point': {
       
