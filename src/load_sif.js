@@ -11,6 +11,7 @@ import * as Segment from './types/segment.js';
 import * as Gradient from './types/gradient.js';
 import * as Transformation from './types/transformation.js';
 import * as BLinePoint from './types/bline_point.js';
+import * as WidthPoint from './types/width_point.js';
 import * as Keyframe from './types/keyframe.js';
 import * as ValueBase from './types/value_base.js';
 
@@ -413,8 +414,37 @@ function parseValue(pulley, canvas) {
       return out;
     }
     case 'width_point': {
-      
-      return;
+      const wp = out.data = WidthPoint.create();
+      pulley.loopTag((pulley) => {
+        const name = pulley.expect('opentag').name, value = parseValue(pulley, canvas);
+        let expectedType;
+        if(name === 'position') {
+          wp.position = value.data;
+          expectedType = 'real';
+        } else if(name === 'width') {
+          wp.width = value.data;
+          expectedType = 'real';
+        } else if(name === 'side_before') {
+          wp.before = value.data;
+          expectedType = 'integer';
+        } else if(name === 'side_after') {
+          wp.after = value.data;
+          expectedType = 'integer';
+        } else if(name === 'lower_bound') {
+          wp.lower = value.data;
+          expectedType = 'real';
+        } else if(name === 'upper_bound') {
+          wp.upper = value.data;
+          expectedType = 'real';
+        } else {
+          throw Error(`Unexpected element in <width_point>: <${name}>!`);
+        }
+        if(value.type !== expectedType) {
+          throw Error(`Expected <width_point>'s <${name}> to be ${expectedType}; got ${value.type}!`);
+        }
+        pulley.expectName(name, 'closetag');
+      }, 'width_point');
+      return out;
     }
     case 'dash_item': {
       
