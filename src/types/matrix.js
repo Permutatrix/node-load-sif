@@ -1,10 +1,10 @@
-export function create(m00, m01, m02,
-                       m10, m11, m12,
-                       m20, m21, m22) {
+export const create = function Matrix(m00, m01, m02,
+                                      m10, m11, m12,
+                                      m20, m21, m22) {
   return [m00, m01, m02,
           m10, m11, m12,
           m20, m21, m22];
-}
+};
 
 export function affine(m00, m01,
                        m10, m11,

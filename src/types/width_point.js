@@ -17,4 +17,4 @@ export const create = function WidthPoint(position, width, before, after, dash, 
     lower: lower || 0,
     upper: upper === undefined ? 1 : upper
   };
-}
+};

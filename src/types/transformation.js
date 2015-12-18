@@ -7,4 +7,4 @@ export const create = function Transformation(offset, angle, skew, scale) {
     skew: skew || 0,
     scale: scale || Vector.zero(1)
   };
-}
+};

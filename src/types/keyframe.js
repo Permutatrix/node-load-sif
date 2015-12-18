@@ -4,7 +4,7 @@ export const create = function Keyframe(time, active, desc) {
     active: active === undefined ? true : active,
     desc: desc ? desc : undefined
   };
-}
+};
 
 
 export function comesAfter(a, b) {

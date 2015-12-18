@@ -13,4 +13,4 @@ export const create = function DashItem(offset, length, before, after) {
     before: before || SideType.FLAT,
     after: after || SideType.FLAT
   };
-}
+};

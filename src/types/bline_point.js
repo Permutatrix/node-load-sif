@@ -10,4 +10,4 @@ export const create = function BLinePoint(vertex, tangent1, tangent2, width, ori
     splitr: splitr === undefined ? true : splitr,
     splita: !!splita
   };
-}
+};

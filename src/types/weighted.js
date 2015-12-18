@@ -3,4 +3,4 @@ export const create = function Weighted(weight, value) {
     weight: weight,
     value: value
   };
-}
+};
