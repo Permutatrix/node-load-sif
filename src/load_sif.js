@@ -408,8 +408,9 @@ function parseValue(pulley, canvas) {
       return out;
     }
     case 'guid': {
-      
-      return;
+      out.data = parseValueAttribute(pulley).toUpperCase();
+      out.type = 'string';
+      return out;
     }
     case 'width_point': {
       
