@@ -1,6 +1,6 @@
 export const create = function Keyframe(time, active, desc) {
   return {
-    time,
+    time: time,
     active: active === undefined ? true : active,
     desc: desc ? desc : undefined
   };

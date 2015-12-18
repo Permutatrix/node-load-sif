@@ -1,14 +1,19 @@
 var gulp = require('gulp');
+var rollup = require('rollup-stream');
+var source = require('vinyl-source-stream');
+var buffer = require('vinyl-buffer');
 var babel = require('gulp-babel');
 var del = require('del');
 
 
 gulp.task('clean', function(cb) {
-  del('lib/**/*').then(function() { cb(); });
+  del('./lib/**/*').then(function() { cb(); });
 });
 
 gulp.task('default', ['clean'], function() {
-  return gulp.src('src/**/*.js')
-  .pipe(babel({loose: 'all'}))
-  .pipe(gulp.dest('lib'));
+  return rollup({ entry: './src/load_sif.js' })
+  .pipe(source('load_sif.js', './src'))
+  .pipe(buffer())
+  .pipe(babel({ presets: ['es2015-loose'], plugins: ['add-module-exports'] }))
+  .pipe(gulp.dest('.'));
 });

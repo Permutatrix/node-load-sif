@@ -1,5 +1,5 @@
 export function rgb(r, g, b, a) {
-  return { r, g, b, a: a === undefined ? 1 : a };
+  return { r: r, g: g, b: b, a: a === undefined ? 1 : a };
 }
 export function value(value, alpha) {
   return {

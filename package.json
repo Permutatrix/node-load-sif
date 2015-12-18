@@ -2,7 +2,7 @@
   "name": "load-sif",
   "version": "0.0.0",
   "description": "A parser for Synfig animations",
-  "main": "lib/load_sif.js",
+  "main": "load_sif.js",
   "jsnext:main": "src/load_sif.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -19,9 +19,14 @@
   },
   "homepage": "https://github.com/Permutatrix/node-load-sif#readme",
   "devDependencies": {
-    "del": "^2.0.2",
+    "babel-plugin-add-module-exports": "^0.1.2",
+    "babel-preset-es2015-loose": "^6.1.3",
+    "del": "^2.2.0",
     "gulp": "^3.9.0",
-    "gulp-babel": "^5.2.1"
+    "gulp-babel": "^6.1.1",
+    "rollup-stream": "^1.0.0",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
   },
   "dependencies": {
     "xml-pulley": "^0.2.0"
