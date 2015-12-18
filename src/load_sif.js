@@ -95,15 +95,15 @@ function parseCanvas(pulley, parent, inline) {
     if(values.length !== 4) {
       throw Error(`view-box has 4 parameters; ${values.length} given`);
     }
-    canvas.tl = Vector.create(parseFloat(values[0]), parseFloat(values[1]));
-    canvas.br = Vector.create(parseFloat(values[2]), parseFloat(values[3]));
+    canvas.tl = Vector.at(parseFloat(values[0]), parseFloat(values[1]));
+    canvas.br = Vector.at(parseFloat(values[2]), parseFloat(values[3]));
   }
   if(attrs['bgcolor']) {
     const values = attrs['bgcolor'].split(' ');
     if(values.length !== 4) {
       throw Error(`bgcolor has 4 parameters; ${values.length} given`);
     }
-    canvas.bgcolor = Color.create(parseFloat(values[0]), parseFloat(values[1]),
+    canvas.bgcolor = Color.rgba(parseFloat(values[0]), parseFloat(values[1]),
                                   parseFloat(values[2]), parseFloat(values[3]));
   }
   if(attrs['focus']) {
@@ -111,7 +111,7 @@ function parseCanvas(pulley, parent, inline) {
     if(values.length !== 2) {
       throw Error(`focus has 2 parameters; ${values.length} given`);
     }
-    canvas.focus = Vector.create(parseFloat(values[0]), parseFloat(values[1]));
+    canvas.focus = Vector.at(parseFloat(values[0]), parseFloat(values[1]));
   }
   
   pulley.loopTag((pulley) => {
@@ -249,7 +249,7 @@ function parseValue(pulley, canvas) {
       break;
     }
     case 'vector': {
-      const vec = out.data = Vector.create();
+      const vec = out.data = Vector.zero();
       pulley.loopTag((pulley) => {
         const name = pulley.expect('opentag').name, value = parseFloat(pulley.nextText().text);
         if(name === 'x') {
@@ -264,7 +264,7 @@ function parseValue(pulley, canvas) {
       break;
     }
     case 'color': {
-      const col = out.data = Color.create(0);
+      const col = out.data = Color.black();
       pulley.loopTag((pulley) => {
         const name = pulley.expect('opentag').name, value = parseFloat(pulley.nextText().text);
         if(name === 'r') {
@@ -283,7 +283,7 @@ function parseValue(pulley, canvas) {
       break;
     }
     case 'segment': {
-      const seg = out.data = Segment.create();
+      const seg = out.data = Segment.zero();
       pulley.loopTag((pulley) => {
         const name = pulley.expect('opentag').name;
         let value = parseValue(pulley, canvas);
@@ -307,7 +307,7 @@ function parseValue(pulley, canvas) {
       break;
     }
     case 'gradient': {
-      const grad = out.data = Gradient.create();
+      const grad = out.data = Gradient.empty();
       pulley.loopTag((pulley) => {
         const tag = pulley.checkName('color'), attrs = tag.attributes, value = parseValue(pulley, canvas);
         if(!attrs['pos']) {

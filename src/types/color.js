@@ -1,9 +1,19 @@
-export const create = function Color(r, g, b, a) {
-  if(g === undefined)
-    return { r: r, g: r, b: r, a: 1 };
-  if(b === undefined)
-    return { r: r, g: r, b: r, a: g };
-  if(a === undefined)
-    return { r, g, b, a: 1 };
-  return { r, g, b, a };
+export function rgb(r, g, b, a) {
+  return { r, g, b, a: a === undefined ? 1 : a };
+}
+export function value(value, alpha) {
+  return {
+    r: value,
+    g: value,
+    b: value,
+    a: alpha === undefined ? 1 : alpha
+  };
+}
+export function black() {
+  return {
+    r: 0,
+    g: 0,
+    b: 0,
+    a: 1
+  };
 }

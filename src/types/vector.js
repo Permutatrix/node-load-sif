@@ -1,11 +1,11 @@
-export const create = function Vector(x, y) {
-  if(x === undefined) {
-    return { x: 0, y: 0 };
-  } else if(y === undefined) {
-    return { x, y: x };
-  } else {
-    return { x, y };
-  }
+export function at(x, y) {
+  return { x, y };
+}
+export function diagonal(x) {
+  return { x, y: x };
+}
+export function zero() {
+  return { x: 0, y: 0 };
 }
 
 
