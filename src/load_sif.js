@@ -475,8 +475,9 @@ function parseValue(pulley, canvas) {
       return out;
     }
     case 'canvas': {
-      
-      return;
+      out.data = parseCanvas(pulley, canvas, true);
+      out.static = readStatic(tag);
+      return out;
     }
     default: {
       
