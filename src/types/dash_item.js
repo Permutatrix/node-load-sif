@@ -6,11 +6,11 @@ export const SideType = Object.freeze({
 });
 
 
-export const create = function DashItem(offset, length, before, after) {
+export function create(offset, length, before, after) {
   return {
     offset: offset === undefined ? 0.1 : offset,
     length: length === undefined ? 0.1 : length,
     before: before || SideType.FLAT,
     after: after || SideType.FLAT
   };
-};
+}

@@ -1,6 +1,6 @@
 import * as Interpolation from '../interpolation.js';
 
-export const create = function ValueBase(type, data, isStatic, interpolation, loop) {
+export function create(type, data, isStatic, interpolation, loop) {
   return {
     type: type,
     data: data,
@@ -8,4 +8,4 @@ export const create = function ValueBase(type, data, isStatic, interpolation, lo
     interpolation: interpolation || Interpolation.UNDEFINED,
     loop: !!loop
   };
-};
+}

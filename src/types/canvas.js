@@ -3,14 +3,14 @@ import { insertSorted } from '../utils.js';
 import * as Keyframe from './keyframe.js';
 
 
-export const create = function Canvas() {
+export function create() {
   return {
     keyframes: [],
     metadata: {},
     valueNodes: {},
     canvases: {}
   };
-};
+}
 
 
 export function addKeyframe(canvas, keyframe) {

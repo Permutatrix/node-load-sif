@@ -7,7 +7,7 @@ export const SideType = Object.freeze({
 });
 
 
-export const create = function WidthPoint(position, width, before, after, dash, lower, upper) {
+export function create(position, width, before, after, dash, lower, upper) {
   return {
     position: position || 0,
     width: width === undefined ? 0.01 : width,
@@ -17,4 +17,4 @@ export const create = function WidthPoint(position, width, before, after, dash, 
     lower: lower || 0,
     upper: upper === undefined ? 1 : upper
   };
-};
+}

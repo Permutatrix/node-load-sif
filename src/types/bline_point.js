@@ -1,6 +1,6 @@
 import * as Vector from './vector.js';
 
-export const create = function BLinePoint(vertex, tangent1, tangent2, width, origin, splitr, splita) {
+export function create(vertex, tangent1, tangent2, width, origin, splitr, splita) {
   return {
     vertex: vertex || Vector.zero(),
     tangent1: tangent1 || Vector.zero(),
@@ -10,4 +10,4 @@ export const create = function BLinePoint(vertex, tangent1, tangent2, width, ori
     splitr: splitr === undefined ? true : splitr,
     splita: !!splita
   };
-};
+}

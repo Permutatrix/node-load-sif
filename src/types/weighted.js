@@ -1,6 +1,6 @@
-export const create = function Weighted(weight, value) {
+export function create(weight, value) {
   return {
     weight: weight,
     value: value
   };
-};
+}
