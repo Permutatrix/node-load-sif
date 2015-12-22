@@ -1,6 +1,10 @@
-export const create = function VNConst(data) {
+export function create(type, data) {
   return {
-    type: 'const',
-    data
+    name: 'constant',
+    type: type,
+    data: data
   };
-};
+}
+export function wrap(data) {
+  return create(data.type, data);
+}

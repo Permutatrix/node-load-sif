@@ -196,7 +196,7 @@ function parseValueNode(pulley, canvas) {
   
   let node, value;
   if(tag.name !== 'canvas' && (value = parseValue(pulley, canvas))) {
-    node = VNConst.create(value);
+    node = VNConst.wrap(value);
   } else {
     const parser = {
       'hermite': parseAnimated,
@@ -213,7 +213,7 @@ function parseValueNode(pulley, canvas) {
     } else if(node = parseLinkableValueNode(pulley, canvas)) {
       
     } else if(tag.name === 'canvas') {
-      node = VNConst.create(ValueBase.create('canvas', parseCanvas(pulley, canvas, true)));
+      node = VNConst.wrap(ValueBase.create('canvas', parseCanvas(pulley, canvas, true)));
     } else {
       throw Error(`Expected value node; got <${tag.name}>!`);
     }
@@ -226,6 +226,22 @@ function parseValueNode(pulley, canvas) {
   Guid.set(guid, node);
   
   return node;
+}
+
+function parseAnimated(pulley, canvas) {
+  throw Error("Not implemented");
+}
+
+function parseStaticList(pulley, canvas) {
+  throw Error("Not implemented");
+}
+
+function parseDynamicList(pulley, canvas) {
+  throw Error("Not implemented");
+}
+
+function parseLinkableValueNode(pulley, canvas) {
+  throw Error("Not implemented");
 }
 
 function parseValue(pulley, canvas) {
