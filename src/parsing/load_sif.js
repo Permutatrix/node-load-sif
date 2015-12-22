@@ -1,23 +1,23 @@
 import { makePulley } from 'xml-pulley';
 
-import * as Version from './version.js';
-import * as Guid from './guid.js';
-import * as Interpolation from './interpolation.js';
+import * as Version from '../version.js';
+import * as Guid from '../guid.js';
+import * as Interpolation from '../interpolation.js';
 
-import * as Color from './types/color.js';
-import * as Canvas from './types/canvas.js';
-import * as Vector from './types/vector.js';
-import * as Segment from './types/segment.js';
-import * as Gradient from './types/gradient.js';
-import * as Transformation from './types/transformation.js';
-import * as BLinePoint from './types/bline_point.js';
-import * as WidthPoint from './types/width_point.js';
-import * as DashItem from './types/dash_item.js';
-import * as Weighted from './types/weighted.js';
-import * as Keyframe from './types/keyframe.js';
-import * as ValueBase from './types/value_base.js';
+import * as Color from '../types/color.js';
+import * as Canvas from '../types/canvas.js';
+import * as Vector from '../types/vector.js';
+import * as Segment from '../types/segment.js';
+import * as Gradient from '../types/gradient.js';
+import * as Transformation from '../types/transformation.js';
+import * as BLinePoint from '../types/bline_point.js';
+import * as WidthPoint from '../types/width_point.js';
+import * as DashItem from '../types/dash_item.js';
+import * as Weighted from '../types/weighted.js';
+import * as Keyframe from '../types/keyframe.js';
+import * as ValueBase from '../types/value_base.js';
 
-import * as VNConst from './value_nodes/const.js';
+import * as VNConst from '../value_nodes/const.js';
 
 
 function checkAttribute(tag, name) {

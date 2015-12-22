@@ -11,8 +11,8 @@ gulp.task('clean', function(cb) {
 });
 
 gulp.task('default', ['clean'], function() {
-  return rollup({ entry: './src/load_sif.js' })
-  .pipe(source('load_sif.js', './src'))
+  return rollup({ entry: './src/parsing/load_sif.js' })
+  .pipe(source('load_sif.js', './src/parsing'))
   .pipe(buffer())
   .pipe(babel({ presets: ['es2015-loose'] }))
   .pipe(gulp.dest('.'));
