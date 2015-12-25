@@ -8,21 +8,43 @@ export function create() {
     keyframes: [],
     metadata: {},
     valueNodes: {},
-    canvases: {}
+    canvases: {},
+    inline: false
+  };
+}
+
+export function inline() {
+  return {
+    inline: true
   };
 }
 
 
 export function addKeyframe(canvas, keyframe) {
-  insertSorted(canvas.keyframes, keyframe, Keyframe.comesAfter);
+  insertSorted(getNonInline(canvas).keyframes, keyframe, Keyframe.comesAfter);
 }
 
 export function addValueNode(canvas, node, id) {
-  canvas.valueNodes[id] = node;
+  getNonInline(canvas).valueNodes[id] = node;
+}
+
+export function findValueNode(canvas, id) {
+  if(!canvas || !id) return;
+  canvas = getNonInline(canvas);
+  
+  if(id.indexOf(':') === 0 && id.indexOf('#') === 0) {
+    return canvas.valueNodes[id];
+  }
+  
+  const sep = id.lastIndexOf(':');
+  const canvasID = id.substr(0, sep) || ':', nodeID = id.substr(sep + 1);
+  canvas = findCanvas(canvas, canvasID);
+  
+  return canvas && canvas.valueNodes[id];
 }
 
 export function childCanvas(canvas, id) {
-  return canvas.canvases[id] = create();
+  return getNonInline(canvas).canvases[id] = create();
 }
 
 export function getRoot(canvas) {
@@ -30,4 +52,19 @@ export function getRoot(canvas) {
     canvas = canvas.parent;
   }
   return canvas;
+}
+
+export function getNonInline(canvas) {
+  while(canvas.inline) {
+    canvas = canvas.parent;
+  }
+  return canvas;
+}
+
+export function findCanvas(canvas, id) {
+  throw Error("Not implemented");
+}
+
+export function addLayer(canvas, layer) {
+  throw Error("Not implemented");
 }

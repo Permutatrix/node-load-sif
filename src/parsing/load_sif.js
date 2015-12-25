@@ -19,6 +19,8 @@ import * as ValueBase from '../types/value_base.js';
 
 import * as VNConst from '../value_nodes/const.js';
 
+import { parseLinkableValueNode } from './linkable_vn.js';
+
 
 function checkAttribute(tag, name) {
   if(tag.attributes[name] === undefined) {
@@ -47,11 +49,13 @@ function parseCanvas(pulley, parent, inline) {
   
   let canvas;
   
-  if(inline || !parent) {
-    canvas = Canvas.create();
+  if(inline) {
+    canvas = Canvas.inline();
     canvas.parent = parent;
   } else if(parent) {
     canvas = Canvas.childCanvas(canvas, attrs['id']);
+  } else {
+    canvas = Canvas.create();
   }
   
   Guid.set(canvas.guid = attrs['guid'] || Guid.generate(), canvas);
@@ -237,10 +241,6 @@ function parseStaticList(pulley, canvas) {
 }
 
 function parseDynamicList(pulley, canvas) {
-  throw Error("Not implemented");
-}
-
-function parseLinkableValueNode(pulley, canvas) {
   throw Error("Not implemented");
 }
 
