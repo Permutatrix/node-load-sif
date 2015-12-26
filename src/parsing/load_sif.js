@@ -39,8 +39,18 @@ export function loadSif(xml) {
 }
 
 
-function parseCanvas(pulley, parent, inline) {
+function parseCanvas(pulley, context, inline) {
   const tag = pulley.checkName('canvas'), attrs = tag.attributes;
+  const parent = context && context.parent;
+  let onParsingDone = context && context.onParsingDone;
+  
+  let doneHandlers;
+  if(!onParsingDone) {
+    doneHandlers = [];
+    onParsingDone = (cb) => {
+      doneHandlers.push(cb);
+    };
+  }
   
   if(attrs['guid'] && Guid.exists(attrs['guid'])) {
     pulley.skipTag();
@@ -121,6 +131,11 @@ function parseCanvas(pulley, parent, inline) {
     canvas.focus = Vector.at(parseFloat(values[0]), parseFloat(values[1]));
   }
   
+  context = {
+    canvas: canvas,
+    onParsingDone: onParsingDone
+  };
+  
   pulley.loopTag((pulley) => {
     const tag = pulley.check('opentag');
     switch(tag.name) {
@@ -128,7 +143,7 @@ function parseCanvas(pulley, parent, inline) {
         if(inline) {
           throw Error("Inline canvases can't have defs!");
         }
-        parseCanvasDefs(pulley, canvas);
+        parseCanvasDefs(pulley, context);
         break;
       }
       case 'bones': {
@@ -142,7 +157,7 @@ function parseCanvas(pulley, parent, inline) {
           pulley.skipTag();
           break;
         }
-        Canvas.addKeyframe(canvas, parseKeyframe(pulley, canvas));
+        Canvas.addKeyframe(canvas, parseKeyframe(pulley, context));
         break;
       }
       case 'meta': {
@@ -151,7 +166,7 @@ function parseCanvas(pulley, parent, inline) {
           pulley.skipTag();
           break;
         }
-        parseMetaInto(pulley, canvas);
+        parseMetaInto(pulley, context);
         break;
       }
       case 'name': case 'desc': case 'author': {
@@ -161,7 +176,7 @@ function parseCanvas(pulley, parent, inline) {
         break;
       }
       case 'layer': {
-        Canvas.addLayer(canvas, parseLayer(pulley, canvas));
+        Canvas.addLayer(canvas, parseLayer(pulley, context));
         break;
       }
       default: {
@@ -170,22 +185,27 @@ function parseCanvas(pulley, parent, inline) {
     }
   }, 'canvas');
   
+  if(doneHandlers) for(let i = 0, len = doneHandlers.length; i < len; ++i) {
+    doneHandlers[i]();
+  }
+  
   return canvas;
 }
 
-function parseCanvasDefs(pulley, canvas) {
+function parseCanvasDefs(pulley, context) {
   pulley.loopTag((pulley) => {
     const tag = pulley.check('opentag');
     if(tag.name === 'canvas') {
-      parseCanvas(pulley, canvas);
+      parseCanvas(pulley, context);
     } else {
-      parseValueNode(pulley, canvas);
+      parseValueNode(pulley, context);
     }
   }, 'defs');
 }
 
-function parseValueNode(pulley, canvas) {
+function parseValueNode(pulley, context) {
   const tag = pulley.check('opentag'), attrs = tag.attributes;
+  const canvas = context.canvas;
   
   let guid = attrs['guid'];
   if(guid) {
@@ -199,7 +219,7 @@ function parseValueNode(pulley, canvas) {
   }
   
   let node, value;
-  if(tag.name !== 'canvas' && (value = parseValue(pulley, canvas))) {
+  if(tag.name !== 'canvas' && (value = parseValue(pulley, context))) {
     node = VNConst.wrap(value);
   } else {
     const parser = {
@@ -213,11 +233,11 @@ function parseValueNode(pulley, canvas) {
       'weighted_average': parseDynamicList
     }[tag.name];
     if(parser) {
-      node = parser(pulley, canvas);
-    } else if(node = parseLinkableValueNode(pulley, canvas)) {
+      node = parser(pulley, context);
+    } else if(node = parseLinkableValueNode(pulley, context)) {
       
     } else if(tag.name === 'canvas') {
-      node = VNConst.wrap(ValueBase.create('canvas', parseCanvas(pulley, canvas, true)));
+      node = VNConst.wrap(ValueBase.create('canvas', parseCanvas(pulley, context, true)));
     } else {
       throw Error(`Expected value node; got <${tag.name}>!`);
     }
@@ -232,19 +252,19 @@ function parseValueNode(pulley, canvas) {
   return node;
 }
 
-function parseAnimated(pulley, canvas) {
+function parseAnimated(pulley, context) {
   throw Error("Not implemented");
 }
 
-function parseStaticList(pulley, canvas) {
+function parseStaticList(pulley, context) {
   throw Error("Not implemented");
 }
 
-function parseDynamicList(pulley, canvas) {
+function parseDynamicList(pulley, context) {
   throw Error("Not implemented");
 }
 
-function parseValue(pulley, canvas) {
+function parseValue(pulley, context) {
   const tag = pulley.check('opentag'), attrs = tag.attributes;
   
   const out = ValueBase.create(tag.name);
@@ -305,7 +325,7 @@ function parseValue(pulley, canvas) {
       const seg = out.data = Segment.zero();
       pulley.loopTag((pulley) => {
         const name = pulley.expect('opentag').name;
-        let value = parseValue(pulley, canvas);
+        let value = parseValue(pulley, context);
         if(!value || value.type !== 'vector') {
           throw Error(`Expected <vector> in <segment>!`);
         }
@@ -328,7 +348,7 @@ function parseValue(pulley, canvas) {
     case 'gradient': {
       const grad = out.data = Gradient.empty();
       pulley.loopTag((pulley) => {
-        const tag = pulley.checkName('color'), attrs = tag.attributes, value = parseValue(pulley, canvas);
+        const tag = pulley.checkName('color'), attrs = tag.attributes, value = parseValue(pulley, context);
         if(!attrs['pos']) {
           throw Error("<gradient>'s <color> is missing attribute \"pos\"!");
         }
@@ -355,7 +375,7 @@ function parseValue(pulley, canvas) {
     case 'transformation': {
       const trans = out.data = Transformation.create();
       pulley.loopTag((pulley) => {
-        const name = pulley.expect('opentag').name, value = parseValue(pulley, canvas);
+        const name = pulley.expect('opentag').name, value = parseValue(pulley, context);
         if(!value) {
           throw Error(`<transformation>'s <${name}> has an invalid value!`);
         }
@@ -386,7 +406,7 @@ function parseValue(pulley, canvas) {
       const list = out.data = [];
       pulley.loopTag((pulley) => {
         const name = pulley.check('opentag').name;
-        const v = parseValue(pulley, canvas);
+        const v = parseValue(pulley, context);
         if(!v) {
           throw Error(`Expected list item to be a value; got <${name}>!`);
         }
@@ -398,7 +418,7 @@ function parseValue(pulley, canvas) {
       const bp = out.data = BLinePoint.create();
       bp.splita = bp.splitr = false;
       pulley.loopTag((pulley) => {
-        const name = pulley.expect('opentag').name, value = parseValue(pulley, canvas);
+        const name = pulley.expect('opentag').name, value = parseValue(pulley, context);
         if(!value) {
           throw Error(`<bline_point>'s <${name}> has an invalid value!`);
         }
@@ -440,7 +460,7 @@ function parseValue(pulley, canvas) {
     case 'width_point': {
       const wp = out.data = WidthPoint.create();
       pulley.loopTag((pulley) => {
-        const name = pulley.expect('opentag').name, value = parseValue(pulley, canvas);
+        const name = pulley.expect('opentag').name, value = parseValue(pulley, context);
         if(!value) {
           throw Error(`<width_point>'s <${name}> has an invalid value!`);
         }
@@ -476,7 +496,7 @@ function parseValue(pulley, canvas) {
     case 'dash_item': {
       const di = out.data = DashItem.create();
       pulley.loopTag((pulley) => {
-        const name = pulley.expect('opentag').name, value = parseValue(pulley, canvas);
+        const name = pulley.expect('opentag').name, value = parseValue(pulley, context);
         if(!value) {
           throw Error(`<dash_item>'s <${name}> has an invalid value!`);
         }
@@ -504,7 +524,7 @@ function parseValue(pulley, canvas) {
       return out;
     }
     case 'canvas': {
-      out.data = parseCanvas(pulley, canvas, true);
+      out.data = parseCanvas(pulley, context, true);
       out.static = readStatic(tag);
       return out;
     }
@@ -512,7 +532,7 @@ function parseValue(pulley, canvas) {
       if(tag.name.indexOf('weighted_') === 0) {
         let weight = 0, value;
         pulley.loopTag((pulley) => {
-          const name = pulley.expect('opentag').name, value = parseValue(pulley, canvas);
+          const name = pulley.expect('opentag').name, value = parseValue(pulley, context);
           if(!value) {
             throw Error(`<${tag.name}>'s <${name}> has an invalid value!`);
           }
@@ -576,8 +596,8 @@ function readInterpolation(tag) {
   throw Error(`Invalid value for interpolation: "${value}"!`);
 }
 
-function parseKeyframe(pulley, canvas) {
-  canvas = canvas || {};
+function parseKeyframe(pulley, context) {
+  const canvas = (context && context.canvas) || {};
   
   const tag = pulley.expectName('keyframe'), attrs = tag.attributes;
   
@@ -592,7 +612,7 @@ function parseKeyframe(pulley, canvas) {
   return out;
 }
 
-function parseMetaInto(pulley, canvas) {
+function parseMetaInto(pulley, context) {
   const tag = pulley.expectName('meta'), attrs = tag.attributes;
   
   checkAttribute(tag, 'name');
@@ -610,12 +630,12 @@ function parseMetaInto(pulley, canvas) {
      ].indexOf(name) !== -1) {
     content = content.replace(/,/g, '.');
   }
-  canvas.metadata[name] = content;
+  context.canvas.metadata[name] = content;
   
   pulley.expectName('meta', 'closetag');
 }
 
-function parseLayer(pulley, canvas) {
+function parseLayer(pulley, context) {
   throw Error("layer not implemented");
 }
 

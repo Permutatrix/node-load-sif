@@ -18,11 +18,12 @@ function register(name, factory, mapping) {
 }
 
 
-export function parseLinkableValueNode(pulley, canvas) {
+export function parseLinkableValueNode(pulley, context) {
   const tag = pulley.check('opentag'), attrs = tag.attributes;
   if(!Object.hasOwnProperty.call(linkableValueNodes, tag.name)) {
     return;
   }
+  const canvas = context.canvas, onParsingDone = context.onParsingDone;
   
   const lvn = linkableValueNodes[tag.name], mapping = lvn.mapping;
   const node = lvn.factory(attrs['type'], canvas);
