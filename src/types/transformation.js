@@ -5,6 +5,6 @@ export function create(offset, angle, skew, scale) {
     offset: offset || Vector.zero(),
     angle: angle || 0,
     skew: skew || 0,
-    scale: scale || Vector.zero(1)
+    scale: scale || Vector.diagonal(1)
   };
 }
