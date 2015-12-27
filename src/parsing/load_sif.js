@@ -171,7 +171,10 @@ function parseCanvas(pulley, context, inline) {
       }
       case 'name': case 'desc': case 'author': {
         pulley.expectName(tag.name);
-        canvas[tag.name] = pulley.nextText().text;
+        const text = pulley.nextText().text;
+        if(tag.name === 'name') canvas.name = text;
+        else if(tag.name === 'desc') canvas.desc = text;
+        else if(tag.name === 'author') canvas.author = text;
         pulley.expectName(tag.name, 'closetag');
         break;
       }
