@@ -36,10 +36,20 @@ export function generate() {
   return out;
 }
 
-export function find(item) {
+export function find(value) {
   for(let guid in guids) {
-    if(guids[guid] === item) {
+    if(guids[guid] === value) {
       return guid;
     }
   }
+}
+
+export function sureFind(value) {
+  let guid = find(value);
+  if(guid) {
+    return guid;
+  }
+  guid = generate();
+  set(guid, value);
+  return guid;
 }

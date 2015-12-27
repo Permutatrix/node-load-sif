@@ -200,7 +200,7 @@ export function parseValueNode(pulley, context) {
   
   let guid = attrs['guid'];
   if(guid) {
-    guid = Guid.xor(guid, Guid.find(Canvas.getRoot(canvas)));
+    guid = Guid.xor(guid, Guid.sureFind(Canvas.getRoot(canvas)));
     if(Guid.exists(guid)) {
       pulley.skipTag();
       return Guid.get(guid);
