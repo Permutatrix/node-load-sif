@@ -35,3 +35,11 @@ export function generate() {
   }
   return out;
 }
+
+export function find(item) {
+  for(let guid in guids) {
+    if(guids[guid] === item) {
+      return guid;
+    }
+  }
+}
