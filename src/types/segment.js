@@ -1,23 +1,23 @@
 import * as Vector from './vector.js';
 
-export function create(p1, t1, p2, t2) {
-  return { p1: p1, t1: t1, p2: p2, t2: t2 };
+export function create(point1, tangent1, point2, tangent2) {
+  return { point1: point1, tangent1: tangent1, point2: point2, tangent2: tangent2 };
 }
-export function line(p1, p2) {
-  t1 = Vector.subtract(p2, p1);
-  t2 = Vector.clone(t1);
+export function line(point1, point2) {
+  tangent1 = Vector.subtract(point2, point1);
+  tangent2 = Vector.clone(tangent1);
   return {
-    p1: p1,
-    p2: p2,
-    t1: Vector.subtract(p2, p1),
-    t2: Vector.clone(t1)
+    point1: point1,
+    point2: point2,
+    tangent1: Vector.subtract(point2, point1),
+    tangent2: Vector.clone(tangent1)
   }
 }
 export function zero() {
   return {
-    p1: Vector.zero(),
-    p2: Vector.zero(),
-    t1: Vector.zero(),
-    t2: Vector.zero()
+    point1: Vector.zero(),
+    point2: Vector.zero(),
+    tangent1: Vector.zero(),
+    tangent2: Vector.zero()
   };
 }

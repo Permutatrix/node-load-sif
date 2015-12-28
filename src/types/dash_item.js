@@ -6,11 +6,11 @@ export const SideType = Object.freeze({
 });
 
 
-export function create(offset, length, before, after) {
+export function create(offset, length, sideBefore, sideAfter) {
   return {
     offset: offset === undefined ? 0.1 : offset,
     length: length === undefined ? 0.1 : length,
-    before: before || SideType.FLAT,
-    after: after || SideType.FLAT
+    sideBefore: sideBefore || SideType.FLAT,
+    sideAfter: sideAfter || SideType.FLAT
   };
 }

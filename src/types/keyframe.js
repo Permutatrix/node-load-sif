@@ -1,8 +1,8 @@
-export function create(time, active, desc) {
+export function create(time, active, description) {
   return {
     time: time,
     active: active === undefined ? true : active,
-    desc: desc ? desc : undefined
+    description: description ? description : undefined
   };
 }
 

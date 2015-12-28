@@ -161,7 +161,7 @@ export function parseCanvas(pulley, context, inline) {
         pulley.expectName(tag.name);
         const text = pulley.nextText().text;
         if(tag.name === 'name') canvas.name = text;
-        else if(tag.name === 'desc') canvas.desc = text;
+        else if(tag.name === 'desc') canvas.description = text;
         else if(tag.name === 'author') canvas.author = text;
         pulley.expectName(tag.name, 'closetag');
         break;
@@ -322,13 +322,13 @@ export function parseValue(pulley, context) {
         }
         value = value.data;
         if(name === 'p1') {
-          seg.p1 = value;
+          seg.point1 = value;
         } else if(name === 't1') {
-          seg.t1 = value;
+          seg.tangent1 = value;
         } else if(name === 'p2') {
-          seg.p2 = value;
+          seg.point2 = value;
         } else if(name === 't2') {
-          seg.t2 = value;
+          seg.tangent2 = value;
         } else {
           throw Error(`Unexpected element in <segment>: <${name}>!`);
         }
@@ -407,7 +407,7 @@ export function parseValue(pulley, context) {
     }
     case 'bline_point': {
       const bp = out.data = BLinePoint.create();
-      bp.splita = bp.splitr = false;
+      bp.splitAngle = bp.splitRadius = false;
       pulley.loopTag((pulley) => {
         const name = pulley.expect('opentag').name, value = parseValue(pulley, context);
         if(!value) {
@@ -422,7 +422,7 @@ export function parseValue(pulley, context) {
           expectedType = 'vector';
         } else if(name === 't2') {
           bp.tangent2 = value.data;
-          bp.splita = bp.splitr = true;
+          bp.splitAngle = bp.splitRadius = true;
           expectedType = 'vector';
         } else if(name === 'width') {
           bp.width = value.data;
@@ -463,16 +463,16 @@ export function parseValue(pulley, context) {
           wp.width = value.data;
           expectedType = 'real';
         } else if(name === 'side_before') {
-          wp.before = value.data;
+          wp.sideBefore = value.data;
           expectedType = 'integer';
         } else if(name === 'side_after') {
-          wp.after = value.data;
+          wp.sideAfter = value.data;
           expectedType = 'integer';
         } else if(name === 'lower_bound') {
-          wp.lower = value.data;
+          wp.lowerBound = value.data;
           expectedType = 'real';
         } else if(name === 'upper_bound') {
-          wp.upper = value.data;
+          wp.upperBound = value.data;
           expectedType = 'real';
         } else {
           throw Error(`Unexpected element in <width_point>: <${name}>!`);
@@ -499,10 +499,10 @@ export function parseValue(pulley, context) {
           di.length = value.data;
           expectedType = 'real';
         } else if(name === 'side_before') {
-          di.before = value.data;
+          di.sideBefore = value.data;
           expectedType = 'integer';
         } else if(name === 'side_after') {
-          di.after = value.data;
+          di.sideAfter = value.data;
           expectedType = 'integer';
         } else {
           throw Error(`Unexpected element in <dash_item>: <${name}>!`);
@@ -627,7 +627,7 @@ export function parseMetaInto(pulley, context) {
 }
 
 export function parseLayer(pulley, context) {
-  throw Error("layer not implemented");
+  throw Error("Not implemented");
 }
 
 

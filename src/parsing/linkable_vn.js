@@ -72,8 +72,8 @@ export function parseLinkableValueNode(pulley, context) {
   }
   if((version === '0.7' || version === '0.8') &&
      name === 'composite' && type === 'width_point') {
-    node.lower = VNConst.wrap('real', 0);
-    node.upper = VNConst.wrap('real', 1);
+    node.lowerBound = VNConst.wrap('real', 0);
+    node.upperBound = VNConst.wrap('real', 1);
   }
   if(Version.index(version) < Version.index('1.0') &&
      name === 'composite' && type === 'bline_point') {
@@ -81,7 +81,7 @@ export function parseLinkableValueNode(pulley, context) {
       // This doesn't conform precisely to the way Synfig works, but it's just
       // here to support older formats, and the result is equivalent for that
       // purpose.
-      node.splitr = node.splita = node.split;
+      node.splitRadius = node.splitAngle = node.split;
     });
   }
   if(Version.index(version) < Version.index('0.4') &&

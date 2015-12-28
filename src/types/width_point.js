@@ -7,14 +7,14 @@ export const SideType = Object.freeze({
 });
 
 
-export function create(position, width, before, after, dash, lower, upper) {
+export function create(position, width, sideBefore, sideAfter, dash, lowerBound, upperBound) {
   return {
     position: position || 0,
     width: width === undefined ? 0.01 : width,
-    before: before || SideType.INTERPOLATE,
-    after: after || SideType.INTERPOLATE,
+    sideBefore: sideBefore || SideType.INTERPOLATE,
+    sideAfter: sideAfter || SideType.INTERPOLATE,
     dash: !!dash,
-    lower: lower || 0,
-    upper: upper === undefined ? 1 : upper
+    lowerBound: lowerBound || 0,
+    upperBound: upperBound === undefined ? 1 : upperBound
   };
 }
