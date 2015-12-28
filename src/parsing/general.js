@@ -16,6 +16,7 @@ import * as Keyframe from '../types/keyframe.js';
 import * as ValueBase from '../types/value_base.js';
 
 import * as VNConst from '../value_nodes/const.js';
+import * as VNStaticList from '../value_nodes/static_list.js';
 
 import { parseLinkableValueNode } from './linkable_vn.js';
 
@@ -248,7 +249,25 @@ export function parseAnimated(pulley, context) {
 }
 
 export function parseStaticList(pulley, context) {
-  throw Error("Not implemented");
+  const tag = pulley.checkName('static_list'), attrs = tag.attributes;
+  const canvas = context.canvas, onParsingDone = context.onParsingDone;
+  
+  const items = [], out = VNStaticList.create(attrs['type'], items);
+  pulley.loopTag((pulley) => {
+    const tag = pulley.expectName('entry'), attrs = tag.attributes;
+    if(attrs['use']) {
+      const id = attrs['use'], pos = items.length;
+      items.push(null);
+      onParsingDone(() => {
+        items[pos] = Canvas.findValueNode(canvas, id);
+      });
+    } else {
+      items.push(parseValueNode(pulley, context));
+    }
+    pulley.expectName('entry', 'closetag');
+  }, 'static_list');
+  
+  return out;
 }
 
 export function parseDynamicList(pulley, context) {

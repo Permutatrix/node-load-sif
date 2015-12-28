@@ -5,6 +5,6 @@ export function create(type, data) {
     data: data
   };
 }
-export function wrap(data) {
-  return create(data.type, data);
+export function wrap(value) {
+  return create(value.type, value);
 }
