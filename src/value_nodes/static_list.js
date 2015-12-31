@@ -1,5 +1,6 @@
 import * as VNConst from './const.js';
 
+
 export function create(type, items) {
   return {
     name: 'static_list',
@@ -8,6 +9,7 @@ export function create(type, items) {
     items: items || []
   };
 }
+
 export function wrap(value) {
   const data = value.data, items = Array(data.length);
   for(let i = 0, len = data.length; i < len; ++i) {

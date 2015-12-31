@@ -1,5 +1,6 @@
 import * as Vector from './vector.js';
 
+
 export function create(vertex, tangent1, tangent2, width, origin, splitRadius, splitAngle) {
   return {
     vertex: vertex || Vector.zero(),

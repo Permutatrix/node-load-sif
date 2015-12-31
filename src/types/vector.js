@@ -1,9 +1,11 @@
 export function at(x, y) {
   return { x: x, y: y };
 }
+
 export function diagonal(x) {
   return { x: x, y: x };
 }
+
 export function zero() {
   return { x: 0, y: 0 };
 }
