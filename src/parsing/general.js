@@ -19,6 +19,10 @@ import * as Activepoint from '../types/activepoint.js';
 import * as VNConst from '../value_nodes/const.js';
 import * as VNStaticList from '../value_nodes/static_list.js';
 import * as VNDynamicList from '../value_nodes/dynamic_list.js';
+import * as VNBLine from '../value_nodes/bline.js';
+import * as VNWPList from '../value_nodes/wplist.js';
+import * as VNDIList from '../value_nodes/dilist.js';
+import * as VNWeightedAverage from '../value_nodes/weighted_average.js';
 
 import { parseLinkableValueNode } from './linkable_vn.js';
 
@@ -278,13 +282,33 @@ export function parseDynamicList(pulley, context) {
         && name !== 'dilist' && name !== 'weighted_average') {
     throw Error(`Attempted to parse <${name}> as a dynamic list!`);
   }
+  let out;
   if(name !== 'dynamic_list') {
-    throw Error("Not implemented");
+    if(name === 'bline') {
+      out = VNBLine.create();
+    } else if(name === 'wplist') {
+      out = VNWPList.create();
+    } else if(name === 'dilist') {
+      out = VNDIList.create();
+    } else if(name === 'weighted_average') {
+      const type = attrs['type'];
+      if(type.indexOf('weighted_') !== 0) {
+        throw Error(`<weighted_average> must contain a weighted type, not "${type}"!`);
+      }
+      out = VNWeightedAverage.create(type.substr('weighted_'.length));
+    }
+    
+    const loop = attrs['loop'];
+    if(loop === 'true' || loop === '1' || loop === 'TRUE' || loop === 'True') {
+      out.loop = true;
+    }
+  } else {
+    out = VNDynamicList.create(attrs['type']);
   }
   const canvas = context.canvas, fps = (canvas && canvas.fps) || 0;
   const onParsingDone = context.onParsingDone;
   
-  const items = [], out = VNDynamicList.create(attrs['type'], items);
+  const items = out.items;
   pulley.loopTag((pulley) => {
     const tag = pulley.expectName('entry'), attrs = tag.attributes;
     
