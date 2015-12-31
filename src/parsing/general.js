@@ -14,9 +14,11 @@ import * as DashItem from '../types/dash_item.js';
 import * as Weighted from '../types/weighted.js';
 import * as Keyframe from '../types/keyframe.js';
 import * as ValueBase from '../types/value_base.js';
+import * as Activepoint from '../types/activepoint.js';
 
 import * as VNConst from '../value_nodes/const.js';
 import * as VNStaticList from '../value_nodes/static_list.js';
+import * as VNDynamicList from '../value_nodes/dynamic_list.js';
 
 import { parseLinkableValueNode } from './linkable_vn.js';
 
@@ -271,7 +273,56 @@ export function parseStaticList(pulley, context) {
 }
 
 export function parseDynamicList(pulley, context) {
-  throw Error("Not implemented");
+  const tag = pulley.check('opentag'), name = tag.name, attrs = tag.attributes;
+  if(name !== 'dynamic_list' && name !== 'bline' && name !== 'wplist'
+        && name !== 'dilist' && name !== 'weighted_average') {
+    throw Error(`Attempted to parse <${name}> as a dynamic list!`);
+  }
+  if(name !== 'dynamic_list') {
+    throw Error("Not implemented");
+  }
+  const canvas = context.canvas, fps = (canvas && canvas.fps) || 0;
+  const onParsingDone = context.onParsingDone;
+  
+  const items = [], out = VNDynamicList.create(attrs['type'], items);
+  pulley.loopTag((pulley) => {
+    const tag = pulley.expectName('entry'), attrs = tag.attributes;
+    
+    const entry = VNDynamicList.Entry.create();
+    let state = true;
+    function parsePoint(code) {
+      code = code.trim();
+      if(!code) return;
+      let priority = 0;
+      if(code.charAt(0) === 'p') {
+        const space = code.indexOf(' ');
+        if(space === -1) {
+          throw Error(`No space character in activepoint code "${code}"!`);
+        }
+        priority = parseInt(code.substring(1, space));
+        code = code.substr(space + 1);
+      }
+      VNDynamicList.Entry.addNewActivepoint(entry, parseTime(code, fps), state, priority);
+    }
+    (attrs['on'] || attrs['begin'] || '').split(',').forEach(parsePoint);
+    state = false;
+    (attrs['off'] || attrs['end'] || '').split(',').forEach(parsePoint);
+    
+    if(attrs['use']) {
+      const id = attrs['use'];
+      onParsingDone(() => {
+        entry.valueNode = Canvas.findValueNode(canvas, id);
+      });
+    } else {
+      entry.valueNode = parseValueNode(pulley, context);
+    }
+    
+    items.push(entry);
+    
+    pulley.expectName('entry', 'closetag');
+  }, name);
+  
+  return out;
 }
 
 export function parseValue(pulley, context) {
