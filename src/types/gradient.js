@@ -20,9 +20,10 @@ export function empty() {
 }
 
 
-export function addStop(gradient, stop, color) {
-  if(color) {
-    stop = Stop.create(stop, color);
-  }
+export function addStop(gradient, stop) {
   insertSorted(gradient, stop, Stop.comesAfter);
+}
+
+export function addNewStop(gradient, position, color) {
+  addStop(gradient, Stop.create(position, color));
 }
