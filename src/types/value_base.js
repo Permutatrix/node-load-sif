@@ -6,7 +6,7 @@ export function create(type, data, isStatic, interpolation, loop) {
     type: type,
     data: data,
     static: !!isStatic,
-    interpolation: interpolation || Interpolation.UNDEFINED,
+    interpolation: interpolation === undefined ? Interpolation.UNDEFINED : interpolation,
     loop: !!loop
   };
 }
