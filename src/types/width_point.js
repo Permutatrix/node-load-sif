@@ -18,3 +18,8 @@ export function create(position, width, sideBefore, sideAfter, dash, lowerBound,
     upperBound: upperBound === undefined ? 1 : upperBound
   };
 }
+
+
+export function comesAfter(a, b) {
+  return a.position > b.position;
+}
