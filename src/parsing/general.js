@@ -15,6 +15,7 @@ import * as Weighted from '../types/weighted.js';
 import * as Keyframe from '../types/keyframe.js';
 import * as ValueBase from '../types/value_base.js';
 import * as Activepoint from '../types/activepoint.js';
+import * as Waypoint from '../types/waypoint.js';
 
 import * as VNConst from '../value_nodes/const.js';
 import * as VNStaticList from '../value_nodes/static_list.js';
@@ -23,6 +24,7 @@ import * as VNBLine from '../value_nodes/bline.js';
 import * as VNWPList from '../value_nodes/wplist.js';
 import * as VNDIList from '../value_nodes/dilist.js';
 import * as VNWeightedAverage from '../value_nodes/weighted_average.js';
+import * as VNAnimated from '../value_nodes/animated.js';
 
 import { parseLinkableValueNode } from './linkable_vn.js';
 
@@ -251,7 +253,75 @@ export function parseValueNode(pulley, context) {
 }
 
 export function parseAnimated(pulley, context) {
-  throw Error("Not implemented");
+  const tag = pulley.check('opentag'), name = tag.name, attrs = tag.attributes;
+  if(name !== 'hermite' && name !== 'animated') {
+    throw Error(`Attempted to parse <${name}> as an animated!`);
+  }
+  
+  const canvas = context.canvas, fps = (canvas && canvas.fps) || 0;
+  const onParsingDone = context.onParsingDone;
+  
+  const type = attrs['type'], waypoints = [];
+  pulley.loopTag((pulley) => {
+    const tag = pulley.expectName('waypoint'), attrs = tag.attributes;
+    const waypoint = Waypoint.create(parseTime(attrs['time'], fps), undefined, Interpolation.TCB);
+    
+    if(attrs['use']) {
+      const id = attrs['use'];
+      if(type === 'canvas') {
+        onParsingDone(() => {
+          waypoint.valueNode = VNConst.wrap(ValueBase.create('canvas', Canvas.findCanvas(canvas, id)));
+        });
+      } else {
+        onParsingDone(() => {
+          waypoint.valueNode = Canvas.findValueNode(canvas, id);
+        });
+      }
+    } else {
+      waypoint.valueNode = parseValueNode(pulley, context);
+    }
+    
+    if(attrs['tension']) {
+      waypoint.tension = parseFloat(attrs['tension']);
+    }
+    if(attrs['temporal-tension']) {
+      waypoint.temporalTension = parseFloat(attrs['temporal-tension']);
+    }
+    if(attrs['continuity']) {
+      waypoint.continuity = parseFloat(attrs['continuity']);
+    }
+    if(attrs['bias']) {
+      waypoint.bias = parseFloat(attrs['bias']);
+    }
+    if(attrs['before']) {
+      waypoint.interpolationBefore = interpolationFromString(attrs['before']);
+    }
+    if(attrs['after']) {
+      waypoint.interpolationAfter = interpolationFromString(attrs['after']);
+    }
+    
+    waypoints.push(waypoint);
+    
+    pulley.expectName('waypoint', 'closetag');
+  }, name);
+  
+  if(type === 'angle' && canvas.version === '0.1' && waypoints.length &&
+        waypoints.every((wp) => wp.valueNode.name === 'constant')) {
+    let prev = waypoints[0].valueNode.data.data;
+    for(let i = 1; i < waypoints.length; ++i) {
+      const vb = waypoints[i].valueNode.data;
+      let angle = vb.data;
+      while(angle - prev > 180) {
+        angle -= 360;
+      }
+      while(prev - angle > 180) {
+        angle += 360;
+      }
+      vb.data = prev = angle;
+    }
+  }
+  
+  return VNAnimated.create(type, waypoints, readInterpolation(tag));
 }
 
 export function parseStaticList(pulley, context) {
@@ -667,9 +737,8 @@ export function readStatic(tag) {
   throw Error(`Invalid value for static: "${value}"!`);
 }
 
-export function readInterpolation(tag) {
-  const value = tag.attributes['interpolation'];
-  switch(value) {
+export function interpolationFromString(str) {
+  switch(str) {
     case 'halt': return Interpolation.HALT;
     case 'constant': return Interpolation.CONSTANT;
     case 'linear': return Interpolation.LINEAR;
@@ -678,7 +747,11 @@ export function readInterpolation(tag) {
     case 'clamped': return Interpolation.CLAMPED;
     case undefined: return Interpolation.UNDEFINED;
   }
-  throw Error(`Invalid value for interpolation: "${value}"!`);
+  throw Error(`Invalid value for interpolation: "${str}"!`);
+}
+
+export function readInterpolation(tag) {
+  return interpolationFromString(tag.attributes['interpolation']);
 }
 
 export function parseKeyframe(pulley, context) {
