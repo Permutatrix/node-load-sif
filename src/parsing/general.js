@@ -1,6 +1,7 @@
 import * as Version from '../version.js';
 import * as Guid from '../guid.js';
 import * as Interpolation from '../interpolation.js';
+import { parseDecimal } from '../utils.js';
 
 import * as Color from '../types/color.js';
 import * as Canvas from '../types/canvas.js';
@@ -87,13 +88,13 @@ export function parseCanvas(pulley, context, inline) {
     canvas.height = height;
   }
   if(attrs['xres']) {
-    canvas.xres = parseFloat(attrs['xres']);
+    canvas.xres = parseDecimal(attrs['xres']);
   }
   if(attrs['yres']) {
-    canvas.yres = parseFloat(attrs['yres']);
+    canvas.yres = parseDecimal(attrs['yres']);
   }
   if(attrs['fps']) {
-    canvas.fps = parseFloat(attrs['fps']);
+    canvas.fps = parseDecimal(attrs['fps']);
   }
   if(attrs['begin-time'] || attrs['start-time']) {
     canvas.timeStart = parseTime(attrs['begin-time'] || attrs['start-time'], canvas.fps);
@@ -109,23 +110,23 @@ export function parseCanvas(pulley, context, inline) {
     if(values.length !== 4) {
       throw Error(`view-box has 4 parameters; ${values.length} given`);
     }
-    canvas.tl = Vector.at(parseFloat(values[0]), parseFloat(values[1]));
-    canvas.br = Vector.at(parseFloat(values[2]), parseFloat(values[3]));
+    canvas.tl = Vector.at(parseDecimal(values[0]), parseDecimal(values[1]));
+    canvas.br = Vector.at(parseDecimal(values[2]), parseDecimal(values[3]));
   }
   if(attrs['bgcolor']) {
     const values = attrs['bgcolor'].split(' ');
     if(values.length !== 4) {
       throw Error(`bgcolor has 4 parameters; ${values.length} given`);
     }
-    canvas.bgcolor = Color.rgb(parseFloat(values[0]), parseFloat(values[1]),
-                               parseFloat(values[2]), parseFloat(values[3]));
+    canvas.bgcolor = Color.rgb(parseDecimal(values[0]), parseDecimal(values[1]),
+                               parseDecimal(values[2]), parseDecimal(values[3]));
   }
   if(attrs['focus']) {
     const values = attrs['focus'].split(' ');
     if(values.length !== 2) {
       throw Error(`focus has 2 parameters; ${values.length} given`);
     }
-    canvas.focus = Vector.at(parseFloat(values[0]), parseFloat(values[1]));
+    canvas.focus = Vector.at(parseDecimal(values[0]), parseDecimal(values[1]));
   }
   
   context = {
@@ -284,16 +285,16 @@ export function parseAnimated(pulley, context) {
     }
     
     if(attrs['tension']) {
-      waypoint.tension = parseFloat(attrs['tension']);
+      waypoint.tension = parseDecimal(attrs['tension']);
     }
     if(attrs['temporal-tension']) {
-      waypoint.temporalTension = parseFloat(attrs['temporal-tension']);
+      waypoint.temporalTension = parseDecimal(attrs['temporal-tension']);
     }
     if(attrs['continuity']) {
-      waypoint.continuity = parseFloat(attrs['continuity']);
+      waypoint.continuity = parseDecimal(attrs['continuity']);
     }
     if(attrs['bias']) {
-      waypoint.bias = parseFloat(attrs['bias']);
+      waypoint.bias = parseDecimal(attrs['bias']);
     }
     if(attrs['before']) {
       waypoint.interpolationBefore = interpolationFromString(attrs['before']);
@@ -429,7 +430,7 @@ export function parseValue(pulley, context) {
   const out = ValueBase.create(tag.name);
   switch(tag.name) {
     case 'real': {
-      out.data = parseFloat(parseValueAttribute(pulley));
+      out.data = parseDecimal(parseValueAttribute(pulley));
       break;
     }
     case 'time': {
@@ -449,7 +450,7 @@ export function parseValue(pulley, context) {
     case 'vector': {
       const vec = out.data = Vector.zero();
       pulley.loopTag((pulley) => {
-        const name = pulley.expect('opentag').name, value = parseFloat(pulley.nextText().text);
+        const name = pulley.expect('opentag').name, value = parseDecimal(pulley.nextText().text);
         if(name === 'x') {
           vec.x = value;
         } else if(name === 'y') {
@@ -464,7 +465,7 @@ export function parseValue(pulley, context) {
     case 'color': {
       const col = out.data = Color.black();
       pulley.loopTag((pulley) => {
-        const name = pulley.expect('opentag').name, value = parseFloat(pulley.nextText().text);
+        const name = pulley.expect('opentag').name, value = parseDecimal(pulley.nextText().text);
         if(name === 'r') {
           col.r = value;
         } else if(name === 'g') {
@@ -511,7 +512,7 @@ export function parseValue(pulley, context) {
         if(!attrs['pos']) {
           throw Error("<gradient>'s <color> is missing attribute \"pos\"!");
         }
-        Gradient.addStop(grad, parseFloat(attrs['pos']), value.data);
+        Gradient.addStop(grad, parseDecimal(attrs['pos']), value.data);
       }, 'gradient');
       break;
     }
@@ -528,7 +529,7 @@ export function parseValue(pulley, context) {
     }
     case 'angle': case 'degrees': case 'radians': case 'rotations': {
       // Synfig parses all of these as degrees for some reason.
-      out.data = parseFloat(parseValueAttribute(pulley)) * Math.PI / 180;
+      out.data = parseDecimal(parseValueAttribute(pulley)) * Math.PI / 180;
       break;
     }
     case 'transformation': {

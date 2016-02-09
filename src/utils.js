@@ -8,3 +8,8 @@ export function insertSorted(array, item, later) {
   array.unshift(item);
   return 0;
 }
+
+export function parseDecimal(str) {
+  const out = parseFloat(str);
+  return Math.abs(1 - out) < 1e-8 ? 1 : out;
+}
