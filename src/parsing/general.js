@@ -269,10 +269,12 @@ export function parseAnimated(pulley, context) {
     if(attrs['use']) {
       const id = attrs['use'];
       if(type === 'canvas') {
+        // TODO: if the ID references an external canvas, make sure it's loaded.
         onParsingDone(() => {
           waypoint.valueNode = VNConst.wrap(ValueBase.create('canvas', Canvas.findCanvas(canvas, id)));
         });
       } else {
+        // TODO: if the ID references an external canvas, make sure it's loaded.
         onParsingDone(() => {
           waypoint.valueNode = Canvas.findValueNode(canvas, id);
         });
@@ -334,6 +336,7 @@ export function parseStaticList(pulley, context) {
     if(attrs['use']) {
       const id = attrs['use'], pos = items.length;
       items.push(null);
+      // TODO: if the ID references an external canvas, make sure it's loaded.
       onParsingDone(() => {
         items[pos] = Canvas.findValueNode(canvas, id);
       });
@@ -404,6 +407,7 @@ export function parseDynamicList(pulley, context) {
     
     if(attrs['use']) {
       const id = attrs['use'];
+      // TODO: if the ID references an external canvas, make sure it's loaded.
       onParsingDone(() => {
         entry.valueNode = Canvas.findValueNode(canvas, id);
       });
