@@ -1,6 +1,7 @@
 export const CANVAS_VERSION = '1.0';
 
 export const CANVAS_VERSION_HISTORY = [
+  '0.0',
   '0.1',
   '0.2',
   '0.3',
