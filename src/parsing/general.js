@@ -263,9 +263,11 @@ export function parseAnimated(pulley, context) {
   const canvas = context.canvas, fps = (canvas && canvas.fps) || 0;
   const onParsingDone = context.onParsingDone;
   
+  checkAttribute(tag, 'type');
   const type = attrs['type'], waypoints = [];
   pulley.loopTag((pulley) => {
     const tag = pulley.expectName('waypoint'), attrs = tag.attributes;
+    checkAttribute(tag, 'time');
     const waypoint = Waypoint.create(parseTime(attrs['time'], fps), undefined, Interpolation.TCB);
     
     if(attrs['use']) {
@@ -332,6 +334,7 @@ export function parseStaticList(pulley, context) {
   const tag = pulley.checkName('static_list'), attrs = tag.attributes;
   const canvas = context.canvas, onParsingDone = context.onParsingDone;
   
+  checkAttribute(tag, 'type');
   const items = [], out = VNStaticList.create(attrs['type'], items);
   pulley.loopTag((pulley) => {
     const tag = pulley.expectName('entry'), attrs = tag.attributes;
@@ -357,6 +360,7 @@ export function parseDynamicList(pulley, context) {
         && name !== 'dilist' && name !== 'weighted_average') {
     throw Error(`Attempted to parse <${name}> as a dynamic list!`);
   }
+  checkAttribute(tag, 'type');
   let out;
   if(name !== 'dynamic_list') {
     if(name === 'bline') {

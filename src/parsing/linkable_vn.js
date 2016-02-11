@@ -1,4 +1,4 @@
-import { parseValueNode } from './general.js';
+import { parseValueNode, checkAttribute } from './general.js';
 import * as Canvas from '../types/canvas.js';
 import * as ValueBase from '../types/value_base.js';
 import * as VNConst from '../value_nodes/const.js';
@@ -32,6 +32,7 @@ export function parseLinkableValueNode(pulley, context) {
   }
   const canvas = context.canvas, onParsingDone = context.onParsingDone;
   
+  checkAttribute(tag, 'type');
   const name = tag.name, type = attrs['type'];
   const lvn = linkableValueNodes[name], mapping = lvn.mapping;
   const node = lvn.factory(type, canvas);
