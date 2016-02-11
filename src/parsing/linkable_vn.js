@@ -69,16 +69,16 @@ export function parseLinkableValueNode(pulley, context) {
   });
   
   const version = canvas.version;
-  if((version === '0.5' || version === '0.6' || version === '0.7') &&
+  if(Version.between(version, '0.5', '0.7') &&
      (name === 'blinecalcvertex' || name === 'blinecalctangent' || name === 'blinecalcwidth')) {
     node.homogeneous = VNConst.wrap('bool', false);
   }
-  if((version === '0.7' || version === '0.8') &&
+  if(Version.between(version, '0.7', '0.8') &&
      name === 'composite' && type === 'width_point') {
     node.lowerBound = VNConst.wrap('real', 0);
     node.upperBound = VNConst.wrap('real', 1);
   }
-  if(Version.index(version) < Version.index('1.0') &&
+  if(Version.less(version, '1.0') &&
      name === 'composite' && type === 'bline_point') {
     onParsingDone(() => {
       // This doesn't conform precisely to the way Synfig works, but it's just
@@ -87,7 +87,7 @@ export function parseLinkableValueNode(pulley, context) {
       node.splitRadius = node.splitAngle = node.split;
     });
   }
-  if(Version.index(version) < Version.index('0.4') &&
+  if(Version.less(version, '0.4') &&
      (name === 'blinecalctangent' || name === 'segcalctangent')) {
     onParsingDone(() => {
       // TODO: Attach a "scale" node with scalar of 0.5.

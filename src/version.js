@@ -20,6 +20,19 @@ export function index(v) {
   return CANVAS_VERSION_HISTORY.indexOf(v);
 }
 
+export function greater(a, b) {
+  return index(a) > index(b);
+}
+
+export function less(a, b) {
+  return index(a) < index(b);
+}
+
+export function between(x, a, b) {
+  x = index(x);
+  return x >= index(a) && x <= index(b);
+}
+
 export function supported(v) {
   const ind = index(v);
   return ind >= 0 && ind <= CANVAS_VERSION_INDEX;
