@@ -32,7 +32,7 @@ export function findValueNode(canvas, id) {
   if(!canvas || !id) return;
   canvas = getNonInline(canvas);
   
-  if(id.indexOf(':') === 0 && id.indexOf('#') === 0) {
+  if(id.indexOf(':') === -1 && id.indexOf('#') === -1) {
     return canvas.valueNodes[id];
   }
   
