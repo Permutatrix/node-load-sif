@@ -4,22 +4,24 @@ import * as ValueBase from '../types/value_base.js';
 import * as VNConst from '../value_nodes/const.js';
 import * as Version from '../version.js';
 
+import { invertObject } from '../utils.js';
+
 
 const linkableValueNodes = {};
 
 function register(name, factory, mapping) {
-  const m = {}, node = linkableValueNodes[name] = { factory: factory, mapping: m };
-  for(let key in mapping) {
-    const v = mapping[key];
-    if(typeof v === 'string') {
-      m[v] = key;
-    } else {
-      for(let i = 0, len = v.length; i < len; ++i) {
-        m[v[i]] = key;
-      }
+  const linkableValueNode = {
+    factory: factory,
+    mapping: invertObject(mapping)
+  };
+  if(typeof name === 'string') {
+    linkableValueNodes[name] = linkableValueNode;
+  } else {
+    for(let i = 0, len = name.length; i < len; ++i) {
+      linkableValueNodes[name[i]] = linkableValueNode;
     }
   }
-  return node;
+  return linkableValueNode;
 }
 
 

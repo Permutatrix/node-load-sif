@@ -28,6 +28,7 @@ import * as VNWeightedAverage from '../value_nodes/weighted_average.js';
 import * as VNAnimated from '../value_nodes/animated.js';
 
 import { parseLinkableValueNode } from './linkable_vn.js';
+import { parseLayer } from './layer.js';
 
 
 export function checkAttribute(tag, name) {
@@ -796,10 +797,6 @@ export function parseMetaInto(pulley, context) {
   context.canvas.metadata[name] = content;
   
   pulley.expectName('meta', 'closetag');
-}
-
-export function parseLayer(pulley, context) {
-  throw Error("Not implemented");
 }
 
 
