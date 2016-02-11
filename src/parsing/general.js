@@ -266,7 +266,7 @@ export function parseAnimated(pulley, context) {
   checkAttribute(tag, 'type');
   const type = attrs['type'], waypoints = [];
   pulley.loopTag((pulley) => {
-    const tag = pulley.expectName('waypoint'), attrs = tag.attributes;
+    const tag = pulley.checkName('waypoint'), attrs = tag.attributes;
     checkAttribute(tag, 'time');
     const waypoint = Waypoint.create(parseTime(attrs['time'], fps), undefined, Interpolation.TCB);
     
@@ -283,8 +283,11 @@ export function parseAnimated(pulley, context) {
           waypoint.valueNode = Canvas.findValueNode(canvas, id);
         });
       }
+      pulley.skipTag();
     } else {
+      pulley.expectName('waypoint');
       waypoint.valueNode = parseValueNode(pulley, context);
+      pulley.expectName('waypoint', 'closetag');
     }
     
     if(attrs['tension']) {
@@ -307,8 +310,6 @@ export function parseAnimated(pulley, context) {
     }
     
     waypoints.push(waypoint);
-    
-    pulley.expectName('waypoint', 'closetag');
   }, name);
   
   if(type === 'angle' && canvas.version === '0.1' && waypoints.length &&
@@ -337,7 +338,7 @@ export function parseStaticList(pulley, context) {
   checkAttribute(tag, 'type');
   const items = [], out = VNStaticList.create(attrs['type'], items);
   pulley.loopTag((pulley) => {
-    const tag = pulley.expectName('entry'), attrs = tag.attributes;
+    const tag = pulley.checkName('entry'), attrs = tag.attributes;
     if(attrs['use']) {
       const id = attrs['use'], pos = items.length;
       items.push(null);
@@ -345,10 +346,12 @@ export function parseStaticList(pulley, context) {
       onParsingDone(() => {
         items[pos] = Canvas.findValueNode(canvas, id);
       });
+      pulley.skipTag();
     } else {
+      pulley.expectName('entry')
       items.push(parseValueNode(pulley, context));
+      pulley.expectName('entry', 'closetag');
     }
-    pulley.expectName('entry', 'closetag');
   }, 'static_list');
   
   return out;
@@ -389,7 +392,7 @@ export function parseDynamicList(pulley, context) {
   
   const items = out.items;
   pulley.loopTag((pulley) => {
-    const tag = pulley.expectName('entry'), attrs = tag.attributes;
+    const tag = pulley.checkName('entry'), attrs = tag.attributes;
     
     const entry = VNDynamicList.Entry.create();
     let state = true;
@@ -417,13 +420,14 @@ export function parseDynamicList(pulley, context) {
       onParsingDone(() => {
         entry.valueNode = Canvas.findValueNode(canvas, id);
       });
+      pulley.skipTag();
     } else {
+      pulley.expectName('entry')
       entry.valueNode = parseValueNode(pulley, context);
+      pulley.expectName('entry', 'closetag');
     }
     
     items.push(entry);
-    
-    pulley.expectName('entry', 'closetag');
   }, name);
   
   return out;
